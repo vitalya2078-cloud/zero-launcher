@@ -17,7 +17,14 @@ jobs:
         with:
           gradle-version: '8.14.3'
       - name: Build APK
-        run: gradle :app:assembleDebug --no-daemon --stacktrace
+        run: |
+          set -o pipefail
+          gradle :app:assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+      - name: Report errors
+        if: failure()
+        run: |
+          msg=$(grep -E "^e: |What went wrong|error:|Execution failed|AAPT|Could not|not found" -A2 build.log | head -n 70 | cut -c1-400 | sed ':a;N;$!ba;s/\n/%0A/g')
+          echo "::error title=Gradle errors::$msg"
       - name: Publish APK
         uses: softprops/action-gh-release@v2
         with:
