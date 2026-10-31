@@ -3,7 +3,6 @@ package com.vitalya.zero
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
@@ -35,11 +34,42 @@ class Store(ctx: Context) {
         sp.edit().putString(key, v.joinToString("\n")).apply()
     }
 
-    var accent: Int
-        get() = sp.getInt("accent", 0)
+    init {
+        migrateAccent()
+    }
+
+    /** id активной темы, см. [Themes]. */
+    var themeId: String
+        get() = sp.getString("theme", Themes.default.id) ?: Themes.default.id
         set(v) {
-            sp.edit().putInt("accent", v).apply()
+            sp.edit().putString("theme", v).apply()
         }
+
+    /** Ключ акцента из [Themes.accents]; пустая строка — акцент самой темы. */
+    var accentKey: String
+        get() = sp.getString("accentKey", "") ?: ""
+        set(v) {
+            sp.edit().putString("accentKey", v).apply()
+        }
+
+    var monoIcons: Boolean
+        get() = sp.getBoolean("monoIcons", false)
+        set(v) {
+            sp.edit().putBoolean("monoIcons", v).apply()
+        }
+
+    /**
+     * Раньше акцент хранился индексом ("accent": Int) в списке MINT, RED, VIOLET, AMBER, ICE.
+     * Переносим выбор в новый формат; MINT (0) совпадает с акцентом темы ZERO, поэтому он становится «по теме».
+     */
+    private fun migrateAccent() {
+        if (!sp.contains("accent")) return
+        val old = listOf("MINT", "RED", "VIOLET", "AMBER", "ICE")
+        val idx = sp.getInt("accent", 0)
+        val e = sp.edit()
+        if (!sp.contains("accentKey") && idx in 1 until old.size) e.putString("accentKey", old[idx])
+        e.remove("accent").apply()
+    }
 
     var dockInit: Boolean
         get() = sp.getBoolean("dockInit", false)
@@ -100,7 +130,9 @@ class AppAdapter(private val ctx: Context, private val compact: Boolean) : BaseA
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val cell = (convertView as? LinearLayout) ?: createCell()
         val app = items[position]
-        (cell.getChildAt(0) as ImageView).setImageDrawable(app.icon)
+        val icon = cell.getChildAt(0) as ImageView
+        icon.setImageDrawable(app.icon)
+        icon.colorFilter = Palette.iconFilter
         (cell.getChildAt(1) as TextView).text = app.label
         return cell
     }
@@ -121,7 +153,7 @@ class AppAdapter(private val ctx: Context, private val compact: Boolean) : BaseA
         name.gravity = Gravity.CENTER
         name.maxLines = 1
         name.ellipsize = TextUtils.TruncateAt.END
-        name.typeface = Typeface.create("sans-serif-medium", Typeface.NORMAL)
+        name.typeface = Palette.label
         val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         lp.topMargin = ctx.dp(6)
         cell.addView(name, lp)

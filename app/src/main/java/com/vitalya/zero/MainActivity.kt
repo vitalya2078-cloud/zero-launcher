@@ -4,7 +4,6 @@ import android.animation.ValueAnimator
 import android.app.ActivityManager
 import android.app.ActivityOptions
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Notification
 import android.app.PendingIntent
 import android.appwidget.AppWidgetHost
@@ -19,6 +18,7 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.AudioManager
@@ -145,13 +145,13 @@ class MainActivity : Activity(), GestureFrame.Controller {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         store = Store(this)
-        val idx = store.accent.coerceIn(0, Palette.accents.size - 1)
-        Palette.accent = Color.parseColor(Palette.accents[idx].second)
+        Palette.apply(Themes.byId(store.themeId), Themes.accentByKey(store.accentKey), store.monoIcons)
 
         window.setDecorFitsSystemWindows(false)
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
         window.isNavigationBarContrastEnforced = false
+        window.setBackgroundDrawable(ColorDrawable(Palette.bg))
 
         repo = AppRepo(this)
         widgetMgr = AppWidgetManager.getInstance(this)
@@ -252,7 +252,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         t.text = text
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
         t.setTextColor(color)
-        t.typeface = if (mono) Typeface.MONOSPACE else Typeface.create("sans-serif-light", Typeface.NORMAL)
+        t.typeface = if (mono) Palette.mono else Typeface.create("sans-serif-light", Typeface.NORMAL)
         t.letterSpacing = spacing
         t.includeFontPadding = false
         return t
@@ -275,7 +275,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         root.addView(homePage, FrameLayout.LayoutParams(MATCH, MATCH))
 
         scrim = View(this)
-        scrim.setBackgroundColor(Color.BLACK)
+        scrim.setBackgroundColor(Palette.theme.scrim)
         scrim.alpha = 0f
         scrim.visibility = View.GONE
         scrim.setOnClickListener { closeAll() }
@@ -375,7 +375,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         clock.format12Hour = "HH:mm"
         clock.setTextSize(TypedValue.COMPLEX_UNIT_SP, 96f)
         clock.setTextColor(Palette.text)
-        clock.typeface = Typeface.create("sans-serif-thin", Typeface.NORMAL)
+        clock.typeface = Palette.clock
         clock.includeFontPadding = false
         clock.letterSpacing = -0.02f
         homeCol.addView(clock, lp(top = 4))
@@ -385,7 +385,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         date.format12Hour = "EEEE, d MMMM"
         date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
         date.setTextColor(Palette.dim)
-        date.typeface = Typeface.MONOSPACE
+        date.typeface = Palette.mono
         date.letterSpacing = 0.2f
         date.setAllCaps(true)
         homeCol.addView(date, lp(top = 6))
@@ -442,6 +442,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         store.list("dock").mapNotNull { byPkg[it] }.take(5).forEach { app ->
             val icon = android.widget.ImageView(this)
             icon.setImageDrawable(app.icon)
+            icon.colorFilter = Palette.iconFilter
             icon.setPadding(dp(8), dp(8), dp(8), dp(8))
             icon.setOnClickListener { launch(app, it) }
             icon.setOnLongClickListener {
@@ -525,11 +526,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
             return
         }
         val names = providers.map { it.loadLabel(pm) + "  ·  " + it.provider.packageName.substringAfterLast('.') }
-            .toTypedArray()
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("Виджет")
-            .setItems(names) { _, which -> startAddWidget(providers[which]) }
-            .show()
+        ZeroDialog.list(this, "Виджет", names) { startAddWidget(providers[it]) }
     }
 
     private fun startAddWidget(info: AppWidgetProviderInfo) {
@@ -679,6 +676,7 @@ class MainActivity : Activity(), GestureFrame.Controller {
         volSeek.progress = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
         volSeek.progressTintList = ColorStateList.valueOf(Palette.accent)
         volSeek.thumbTintList = ColorStateList.valueOf(Palette.accent)
+        volSeek.progressBackgroundTintList = ColorStateList.valueOf(Palette.line)
         volSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
@@ -837,7 +835,12 @@ class MainActivity : Activity(), GestureFrame.Controller {
         searchField.hint = "SEARCH //"
         searchField.setHintTextColor(Palette.dim)
         searchField.setTextColor(Palette.text)
-        searchField.typeface = Typeface.MONOSPACE
+        searchField.typeface = Palette.mono
+        searchField.highlightColor = Palette.withAlpha(Palette.accent, 90)
+        searchField.textCursorDrawable = GradientDrawable().apply {
+            setColor(Palette.accent)
+            setSize(dp(2), 0)
+        }
         searchField.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
         searchField.setSingleLine(true)
         searchField.imeOptions = EditorInfo.IME_ACTION_GO
@@ -954,59 +957,59 @@ class MainActivity : Activity(), GestureFrame.Controller {
     private fun showAppMenu(app: AppItem) {
         val dock = store.list("dock")
         val arsenal = store.list("arsenal")
-        val items = arrayOf(
+        val items = listOf(
             if (app.pkg in dock) "Убрать из дока" else "В док",
             if (app.pkg in arsenal) "Убрать из арсенала" else "В арсенал",
             "Скрыть",
             "О приложении",
             "Удалить"
         )
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle(app.label)
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> toggleList("dock", app.pkg, 5)
-                    1 -> toggleList("arsenal", app.pkg, 0)
-                    2 -> {
-                        val h = store.list("hidden")
-                        h.add(app.pkg)
-                        store.setList("hidden", h)
-                        refreshLists()
-                    }
-                    3 -> startSettings(
-                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + app.pkg))
-                    )
-                    4 -> startSettings(Intent(Intent.ACTION_DELETE, Uri.parse("package:" + app.pkg)))
-                    else -> {}
+        ZeroDialog.list(this, app.label, items) { which ->
+            when (which) {
+                0 -> toggleList("dock", app.pkg, 5)
+                1 -> toggleList("arsenal", app.pkg, 0)
+                2 -> {
+                    val h = store.list("hidden")
+                    h.add(app.pkg)
+                    store.setList("hidden", h)
+                    refreshLists()
                 }
+                3 -> startSettings(
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + app.pkg))
+                )
+                4 -> startSettings(Intent(Intent.ACTION_DELETE, Uri.parse("package:" + app.pkg)))
+                else -> {}
             }
-            .show()
+        }
     }
 
     private fun showSettings() {
-        val items = arrayOf("Акцентный цвет", "Скрытые приложения", "Сменить лаунчер по умолчанию")
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("ZERO")
-            .setItems(items) { _, which ->
-                when (which) {
-                    0 -> pickAccent()
-                    1 -> showHidden()
-                    2 -> startSettings(Intent(Settings.ACTION_HOME_SETTINGS))
-                    else -> {}
+        val items = listOf(
+            "Тема  ·  " + Palette.theme.name,
+            "Акцентный цвет  ·  " + store.accentKey.ifEmpty { "ПО ТЕМЕ" },
+            "Иконки  ·  " + if (store.monoIcons) "МОНОХРОМ" else "ЦВЕТНЫЕ",
+            "Скрытые приложения",
+            "Сменить лаунчер по умолчанию"
+        )
+        ZeroDialog.list(this, "ZERO", items) { which ->
+            when (which) {
+                0 -> ZeroDialog.themes(this, Palette.theme) {
+                    store.themeId = it.id
+                    recreate()
                 }
+                1 -> ZeroDialog.accents(this, store.accentKey, Palette.theme) {
+                    store.accentKey = it
+                    recreate()
+                }
+                2 -> {
+                    store.monoIcons = !store.monoIcons
+                    recreate()
+                }
+                3 -> showHidden()
+                4 -> startSettings(Intent(Settings.ACTION_HOME_SETTINGS))
+                else -> {}
             }
-            .show()
-    }
-
-    private fun pickAccent() {
-        val names = Palette.accents.map { it.first }.toTypedArray()
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("Акцентный цвет")
-            .setItems(names) { _, which ->
-                store.accent = which
-                recreate()
-            }
-            .show()
+        }
     }
 
     private fun showHidden() {
@@ -1020,19 +1023,14 @@ class MainActivity : Activity(), GestureFrame.Controller {
             toast("Скрытых приложений нет")
             return
         }
-        val names = apps.map { it.label }.toTypedArray()
+        val names = apps.map { it.label }
         val checked = BooleanArray(apps.size) { true }
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("Скрытые (сними галочку, чтобы вернуть)")
-            .setMultiChoiceItems(names, checked) { _, which, isChecked -> checked[which] = isChecked }
-            .setPositiveButton("OK") { _, _ ->
-                val keep = hiddenPkgs.toMutableList()
-                apps.forEachIndexed { i, a -> if (!checked[i]) keep.remove(a.pkg) }
-                store.setList("hidden", keep)
-                refreshLists()
-            }
-            .setNegativeButton("Отмена", null)
-            .show()
+        ZeroDialog.multi(this, "Скрытые (сними отметку, чтобы вернуть)", names, checked) {
+            val keep = hiddenPkgs.toMutableList()
+            apps.forEachIndexed { i, a -> if (!it[i]) keep.remove(a.pkg) }
+            store.setList("hidden", keep)
+            refreshLists()
+        }
     }
 
     private fun startSettings(i: Intent) {
