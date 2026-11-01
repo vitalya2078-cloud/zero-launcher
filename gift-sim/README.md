@@ -25,3 +25,9 @@
 - Функция `giftsim-prices` (verify_jwt выключен, своя проверка ключа `x-cron-secret`).
 - Ключ хранится в закрытой таблице `giftsim.settings` (`cron_token`), клиентские роли к ней доступа не имеют.
 - Планировщик: `pg_cron`, задача `giftsim-prices-hourly`, каждый час в :17, вызов через `pg_net`.
+
+## API мини-приложения (развёрнуто)
+
+- Функция `giftsim-api`: POST `{method, params}` с заголовком `Authorization: tma <initData>`.
+- Подпись Telegram проверяется по секрету `BOT_TOKEN`, срок жизни initData — 24 часа. id игрока берётся только из подписи.
+- Методы — белый список вызовов SQL-функций схемы `giftsim` (см. `routes` в `index.ts`). Ошибки игровой логики возвращаются как `{error: "<код>"}`.
