@@ -240,7 +240,7 @@
    "name": "Happy Brownie",
    "supply": 11985,
    "floor_ton": 5.0,
-   "img_num": 1
+   "img_num": 2
   },
   {
    "slug": "heartlocket",
@@ -590,7 +590,7 @@
    "name": "Resistance Dog",
    "supply": 591,
    "floor_ton": 550.0,
-   "img_num": 1
+   "img_num": 2
   },
   {
    "slug": "restlessjar",
