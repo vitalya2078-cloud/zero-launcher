@@ -73,8 +73,10 @@ export function setBack(handler: (() => void) | null) {
   }
 }
 
+// Ссылка через /start: бот запоминает пригласившего, вход в приложение засчитывает приглашение.
+// Работает без настройки «Main Mini App» в BotFather.
 export function referralLink(tgId: number) {
-  return `https://t.me/${BOT_USERNAME}?startapp=ref_${tgId}`;
+  return `https://t.me/${BOT_USERNAME}?start=ref_${tgId}`;
 }
 
 export function shareLink(url: string, text: string) {

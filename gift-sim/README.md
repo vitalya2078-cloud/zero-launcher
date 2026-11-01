@@ -31,3 +31,10 @@
 - Функция `giftsim-api`: POST `{method, params}` с заголовком `Authorization: tma <initData>`.
 - Подпись Telegram проверяется по секрету `BOT_TOKEN`, срок жизни initData — 24 часа. id игрока берётся только из подписи.
 - Методы — белый список вызовов SQL-функций схемы `giftsim` (см. `routes` в `index.ts`). Ошибки игровой логики возвращаются как `{error: "<код>"}`.
+
+## Бот @FortumDropsBot (развёрнуто)
+
+- Функция `giftsim-bot` — вебхук Telegram (проверка заголовка `X-Telegram-Bot-Api-Secret-Token` по `giftsim.settings.bot_webhook_secret`).
+- `/start ref_<id>` → `giftsim.set_pending_ref`; при первом входе `giftsim.login` засчитывает приглашение.
+- Настроено через Bot API: команды `/start`, `/help`, описание, короткое описание, кнопка меню «Играть» → `giftsim.settings.app_url`.
+- Из базы Supabase `api.telegram.org` недоступен (таймаут), поэтому вызовы Bot API делаются только из Edge Functions.
