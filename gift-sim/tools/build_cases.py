@@ -123,27 +123,27 @@ for i, (cid, name, (lo, hi), n) in enumerate(PRICE):
 
 # ---------------------------------------------------------------- тематические
 THEMES = [
-    ("t_love", "❤️ Любовь", "heartlocket eternalrose lovepotion cupidcharm valentinebox lovecandle trappedheart bondedring "
+    ("t_love", "Любовь", "heartlocket eternalrose lovepotion cupidcharm valentinebox lovecandle trappedheart bondedring "
                             "cookieheart prettyposy lushbouquet diamondring sakuraflower"),
-    ("t_newyear", "🎄 Новый год", "santahat snowglobe snowmittens xmasstocking winterwreath jinglebells sleighbell candycane "
+    ("t_newyear", "Новый год", "santahat snowglobe snowmittens xmasstocking winterwreath jinglebells sleighbell candycane "
                                  "gingercookie holidaydrink spicedwine partysparkler bigyear jackinthebox hangingstar joyfulbundle"),
-    ("t_mystic", "🔮 Мистика", "witchhat madpumpkin hexpot evileye voodoodoll skullflower crystalball flyingbroom magicpotion "
+    ("t_mystic", "Мистика", "witchhat madpumpkin hexpot evileye voodoodoll skullflower crystalball flyingbroom magicpotion "
                               "genielamp electricskull spyagaric eternalcandle faithamulet moonpendant astralshard"),
-    ("t_sweets", "🍰 Сладости", "homemadecake moussecake whipcupcake icecream vicecream lolpop hypnolollipop cookieheart "
+    ("t_sweets", "Сладости", "homemadecake moussecake whipcupcake icecream vicecream lolpop hypnolollipop cookieheart "
                                "berrybox bunnymuffin instantramen candycane gingercookie happybrownie springbasket easteregg"),
-    ("t_luxury", "💎 Роскошь", "swisswatch diamondring perfumebottle signetring gemsignet nailbracelet vintagecigar "
+    ("t_luxury", "Роскошь", "swisswatch diamondring perfumebottle signetring gemsignet nailbracelet vintagecigar "
                               "skystilettos tophat bowtie iongem finepen luckylocket blingbinky heartlocket"),
-    ("t_stars", "🎤 Звёзды", "snoopdogg snoopcigar westsidesign lowrider swagbag khabibspapakha ufcstrike durovscap "
+    ("t_stars", "Звёзды", "snoopdogg snoopcigar westsidesign lowrider swagbag khabibspapakha ufcstrike durovscap "
                             "durovsglasses recordplayer"),
-    ("t_animals", "🐸 Животные", "kissedfrog jellybunny petsnake lunarsnake snakebox jollychimp rarebird resistancedog "
+    ("t_animals", "Животные", "kissedfrog jellybunny petsnake lunarsnake snakebox jollychimp rarebird resistancedog "
                                 "scaredcat toybear plushpepe nekohelmet bunnymuffin"),
-    ("t_space", "🚀 Космос и техника", "stellarrocket astralshard iongem inputkey tamagadget recordplayer ionicdryer "
+    ("t_space", "Космос", "stellarrocket astralshard iongem inputkey tamagadget recordplayer ionicdryer "
                                       "lightsword electricskull deskcalendar starnotepad surgeboard chillflame"),
-    ("t_heroes", "⚔️ Герои", "heroichelmet mightyarm lightsword victorymedal libertyfigure artisanbrick ufcstrike "
+    ("t_heroes", "Герои", "heroichelmet mightyarm lightsword victorymedal libertyfigure artisanbrick ufcstrike "
                             "resistancedog nekohelmet khabibspapakha"),
-    ("t_champions", "🏆 Чемпионы", "algorithmcup intelligencecup victorymedal heroichelmet mightyarm ufcstrike "
+    ("t_champions", "Чемпионы", "algorithmcup intelligencecup victorymedal heroichelmet mightyarm ufcstrike "
                                   "khabibspapakha minioscar"),
-    ("t_durov", "🧢 Дуров", "durovscap durovsglasses lootbag westsidesign mightyarm scaredcat swisswatch kissedfrog "
+    ("t_durov", "Дуров", "durovscap durovsglasses lootbag westsidesign mightyarm scaredcat swisswatch kissedfrog "
                            "genielamp signetring"),
 ]
 for i, (cid, name, slugs) in enumerate(THEMES):
@@ -160,14 +160,14 @@ for i, t in enumerate(TOP):
              stars=(0.1, 0.25, 0.5, 0.75), key=True, sort=i, description=f"Главный приз — {t['name']}")
 
 # ---------------------------------------------------------------- особые и реферальные
-add_case("free", "🎁 Бесплатный", "special", pick_spread(by_ton(5, 6), 2), price=300, stars=(0.1, 0.2, 0.4, 0.8),
-         pay_mode="free", cooldown=4, description="Бесплатно раз в 4 часа", badge="Бесплатно", sort=0)
-REF = [("ref_1", "🤝 Реферальный I", 1, 3000, (15, 150)),
-       ("ref_3", "🤝 Реферальный II", 3, 10000, (40, 600)),
-       ("ref_10", "🤝 Реферальный III", 10, 40000, (150, 3450))]
+add_case("free", "Бесплатный", "special", pick_spread(by_ton(5, 6), 2), price=300, stars=(0.1, 0.2, 0.4, 0.8),
+         pay_mode="free", cooldown=4, description="Раз в 4 часа", badge="Бесплатно", sort=0)
+REF = [("ref_1", "Реферальный I", 1, 3000, (15, 150)),
+       ("ref_3", "Реферальный II", 3, 10000, (40, 600)),
+       ("ref_10", "Реферальный III", 10, 40000, (150, 3450))]
 for i, (cid, name, keys, price, (lo, hi)) in enumerate(REF):
     add_case(cid, name, "referral", pick_spread(by_ton(lo, hi), 9), price=price, pay_mode="keys", price_keys=keys,
-             rtp=1.0, description=f"Открывается за {keys} реф. ключ(а). Ключ даётся за каждого активного друга",
+             rtp=1.0, description=f"Открывается за {keys} " + ("ключ" if keys == 1 else "ключа" if keys < 5 else "ключей"),
              badge="За друзей", sort=i)
 
 # ---------------------------------------------------------------- задания

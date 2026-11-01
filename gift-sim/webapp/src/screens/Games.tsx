@@ -2,15 +2,15 @@ import { go, type GameId } from "../state";
 import { haptic } from "../tg";
 
 const GAMES: { id: GameId; emoji: string; name: string; desc: string; tag?: string }[] /* emoji — запасной вариант */ = [
-  { id: "crash", emoji: "📈", name: "Краш", desc: "Забери ставку до взрыва", tag: "онлайн" },
-  { id: "battles", emoji: "⚔️", name: "Битвы кейсов", desc: "Кто выбьет дороже", tag: "PvP" },
-  { id: "jackpot", emoji: "🏆", name: "Джекпот", desc: "Банк подарков на всех", tag: "PvP" },
-  { id: "upgrade", emoji: "⬆️", name: "Апгрейд", desc: "Подарок → подарок дороже" },
-  { id: "contract", emoji: "📜", name: "Контракт", desc: "3–10 подарков → один" },
-  { id: "mines", emoji: "💣", name: "Мины", desc: "Открывай клетки, не взорвись" },
-  { id: "wheel", emoji: "🎡", name: "Колесо", desc: "Три уровня риска" },
-  { id: "plinko", emoji: "🔻", name: "Плинко", desc: "Шарик и множители до ×164" },
-  { id: "coinflip", emoji: "🪙", name: "Монетка", desc: "50 на 50, выигрыш ×1,92" },
+  { id: "crash", emoji: "📈", name: "Краш", desc: "Успей забрать до взрыва", tag: "онлайн" },
+  { id: "battles", emoji: "⚔️", name: "Битвы кейсов", desc: "Дороже дроп — весь банк твой", tag: "PvP" },
+  { id: "jackpot", emoji: "🏆", name: "Джекпот", desc: "Общий банк подарков", tag: "PvP" },
+  { id: "upgrade", emoji: "⬆️", name: "Апгрейд", desc: "Рискни ради подарка дороже" },
+  { id: "contract", emoji: "📜", name: "Контракт", desc: "3–10 подарков в один" },
+  { id: "mines", emoji: "💣", name: "Мины", desc: "Открывай клетки, обходи мины" },
+  { id: "wheel", emoji: "🎡", name: "Колесо", desc: "Лови множитель" },
+  { id: "plinko", emoji: "🔻", name: "Плинко", desc: "Множители до ×164" },
+  { id: "coinflip", emoji: "🪙", name: "Монетка", desc: "50/50, выигрыш ×1,92" },
 ];
 
 export function Games() {

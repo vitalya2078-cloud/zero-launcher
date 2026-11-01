@@ -26,13 +26,13 @@ function App() {
 
   useEffect(() => {
     if (!tg?.initData) {
-      setError("Откройте FORTUM DROPS через бота @FortumDropsBot в Telegram");
+      setError("Игра открывается через бота @FortumDropsBot");
       return;
     }
     api<P>("login")
       .then((p) => {
         profile.value = p;
-        if (p.is_new) showToast("Добро пожаловать! Вам начислено 3 000 ★");
+        if (p.is_new) showToast("+3 000 ★ на старт. Удачи!");
       })
       .catch((e) => setError(errorText(e)));
   }, []);

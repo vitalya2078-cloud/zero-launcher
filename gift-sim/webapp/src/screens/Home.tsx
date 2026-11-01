@@ -9,20 +9,20 @@ import type { CaseCard, Drop, Profile } from "../types";
 
 const CATEGORIES: { id: CaseCard["category"] | "all"; label: string }[] = [
   { id: "all", label: "Все" },
-  { id: "special", label: "🎁 Особые" },
-  { id: "gift", label: "🎯 Подарки" },
-  { id: "price", label: "💰 По цене" },
-  { id: "theme", label: "✨ Темы" },
-  { id: "referral", label: "🤝 За друзей" },
-  { id: "custom", label: "🔥 Акции" },
+  { id: "special", label: "Особые" },
+  { id: "gift", label: "Охота" },
+  { id: "price", label: "Классика" },
+  { id: "theme", label: "Коллекции" },
+  { id: "referral", label: "За друзей" },
+  { id: "custom", label: "Акции" },
 ];
 
 const SECTION_TITLES: Record<string, string> = {
   special: "Особые",
   referral: "За друзей",
-  price: "По цене",
-  gift: "Кейс одного подарка",
-  theme: "Тематические",
+  price: "Классика",
+  gift: "Охота за подарком",
+  theme: "Коллекции",
   custom: "Акции",
 };
 
@@ -115,8 +115,7 @@ export function Home() {
       ))}
 
       <p class="disclaimer">
-        FORTUM DROPS — бесплатный симулятор. Подарки и звёзды виртуальные, их нельзя вывести или обменять на деньги.
-        Приложение не связано с Telegram.
+        Игра бесплатная. Подарки и звёзды внутриигровые — вывести их нельзя. FORTUM DROPS не является проектом Telegram.
       </p>
     </>
   );
@@ -174,7 +173,7 @@ function DailyBonus() {
       const r = await api<Profile & { bonus: number }>("claim_daily");
       profile.value = r;
       haptic.success();
-      showToast(`+${fmt(r.bonus)} ★ ежедневный бонус`);
+      showToast(`+${fmt(r.bonus)} ★`);
     } catch (e) {
       haptic.error();
       showToast(errorText(e), "err");
@@ -189,7 +188,7 @@ function DailyBonus() {
       const r = await api<Profile & { amount: number }>("claim_rescue");
       profile.value = r;
       haptic.success();
-      showToast(`+${fmt(r.amount)} ★ помощь новичку`);
+      showToast(`+${fmt(r.amount)} ★`);
     } catch (e) {
       showToast(errorText(e), "err");
     } finally {
@@ -202,8 +201,8 @@ function DailyBonus() {
       <div class="bonus glass">
         <div class="bonus-icon">🎁</div>
         <div class="bonus-text">
-          <b>Ежедневный бонус</b>
-          <span class="num">{wait ? `Следующий через ${wait}` : `Заберите ${fmt(p.daily_next_amount)} ★`}</span>
+          <b>Бонус дня</b>
+          <span class="num">{wait ? `Следующий через ${wait}` : `+${fmt(p.daily_next_amount)} ★ уже ждут`}</span>
           <div class="streak">
             {Array.from({ length: 7 }, (_, i) => (
               <i class={i < (wait ? streak : streak) ? "on" : ""} />
@@ -211,15 +210,15 @@ function DailyBonus() {
           </div>
         </div>
         <button class="btn gold small" disabled={!!wait || busy} onClick={claim}>
-          {wait ? "Забрано" : "Забрать"}
+          {wait ? "Получено" : "Забрать"}
         </button>
       </div>
       {p.rescue_available && (
         <div class="bonus glass" style={{ marginTop: 10 }}>
           <div class="bonus-icon">🆘</div>
           <div class="bonus-text">
-            <b>Закончились звёзды?</b>
-            <span>Получите помощь, чтобы продолжить игру</span>
+            <b>Звёзды кончились?</b>
+            <span>Держи 700 ★ на отыгрыш</span>
           </div>
           <button class="btn small" disabled={busy} onClick={rescue}>
             Получить

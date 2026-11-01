@@ -110,7 +110,7 @@ export function ItemPicker({ title, max, min = 1, exclude = [], onDone, onClose,
         <span class="num">{sel.length}/{max}</span>
       </div>
       {items.length === 0 ? (
-        <div class="empty">В инвентаре пока нет подарков — откройте кейс</div>
+        <div class="empty">Подарков пока нет — открой кейс</div>
       ) : (
         <div class="gift-grid" style={{ maxHeight: "52vh", overflowY: "auto", padding: 2 }}>
           {items.map((g) => {
@@ -149,12 +149,12 @@ export function PrizeSheet({ gift, title, note, onClose }: { gift: Gift; title?:
     <Sheet onClose={onClose}>
       <div class="win" style={{ "--rc": RARITY[gift.rarity].color }}>
         <div class="rays" />
-        {gift.kind === "nft" ? <GiftLottie gift={gift} size={190} /> : <GiftArt gift={gift} size={190} />}
+        <div class="win-art">{gift.kind === "nft" ? <GiftLottie gift={gift} size={200} /> : <GiftArt gift={gift} size={180} />}</div>
         <div class="rarity">{RARITY[gift.rarity].name}</div>
         <h2>{title ?? gift.name}</h2>
         <div class="value num"><Star size={20} /> {fmt(gift.value)}</div>
         {note && <div class="dim" style={{ marginTop: -10, marginBottom: 14, fontSize: 13 }}>{note}</div>}
-        <button class="btn" onClick={onClose}>Отлично</button>
+        <button class="btn" onClick={onClose}>Забрать</button>
       </div>
     </Sheet>
   );

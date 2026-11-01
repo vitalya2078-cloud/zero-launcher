@@ -28,20 +28,20 @@ export async function api<T = unknown>(method: string, params: Record<string, un
 // Человеческие тексты для кодов ошибок из базы.
 const MESSAGES: Record<string, string> = {
   network: "Нет соединения с сервером",
-  unauthorized: "Откройте приложение через бота в Telegram",
+  unauthorized: "Открой игру через бота в Telegram",
   insufficient_balance: "Недостаточно звёзд",
-  not_enough_keys: "Недостаточно реферальных ключей",
+  not_enough_keys: "Не хватает ключей",
   case_cooldown: "Бесплатный кейс ещё недоступен",
   case_sold_out: "Кейс закончился",
   case_expired: "Кейс больше недоступен",
-  daily_not_ready: "Бонус уже получен, приходите позже",
-  rescue_not_available: "Помощь сейчас недоступна",
+  daily_not_ready: "Бонус уже забран — загляни позже",
+  rescue_not_available: "Пока недоступно",
   item_not_found: "Подарок не найден",
   task_not_done: "Задание ещё не выполнено",
   task_already_claimed: "Награда уже получена",
-  not_subscribed: "Сначала подпишитесь на канал",
+  not_subscribed: "Сначала подпишись на канал",
   bad_bet: "Неверная ставка",
-  round_active: "Сначала завершите текущий раунд",
+  round_active: "Сначала доиграй текущий раунд",
   forbidden: "Нет доступа",
 };
 

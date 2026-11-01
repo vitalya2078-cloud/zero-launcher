@@ -29,14 +29,13 @@ async function config() {
 }
 
 const WELCOME = (name: string, invited: boolean) =>
-  `🎁 <b>${name ? escape(name) + ", д" : "Д"}обро пожаловать в FORTUM DROPS!</b>\n\n` +
-  `Открывай кейсы с настоящими NFT-подарками Telegram: Plush Pepe, Durov’s Cap, Heart Locket и ещё 120 коллекций. ` +
-  `Цены обновляются каждый час по Fragment.\n\n` +
-  `🎰 Краш, апгрейд, мины, колесо, битвы кейсов\n` +
-  `🎁 3 000 ★ на старт и ежедневный бонус\n` +
-  `🤝 Приглашай друзей — получай ключи от реферальных кейсов\n` +
-  (invited ? `\n✨ Ты пришёл по приглашению — при первом входе получишь ещё +1 000 ★\n` : "") +
-  `\n<i>Это бесплатный симулятор: подарки и звёзды виртуальные, вывести их нельзя. Не связан с Telegram.</i>`;
+  `<b>${name ? escape(name) + ", п" : "П"}ривет! Это FORTUM DROPS</b>\n\n` +
+  `Кейсы с NFT-подарками Telegram: Plush Pepe, Durov’s Cap, Heart Locket и ещё 120 коллекций. Цены — как на Fragment, обновляются каждый час.\n\n` +
+  `🎰 Краш, мины, апгрейд, битвы кейсов\n` +
+  `⭐ 3 000 звёзд на старт и бонус каждый день\n` +
+  `🤝 Зови друзей — получай ключи от реферальных кейсов\n` +
+  (invited ? `\n🎁 Ты по приглашению: на входе ещё +1 000 ★\n` : "") +
+  `\n<i>Игра бесплатная, подарки внутриигровые — вывода нет.</i>`;
 
 const escape = (s: string) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
 
@@ -53,7 +52,7 @@ Deno.serve(async (req) => {
   if (!msg?.text || msg.chat?.type !== "private") return new Response("ok");
 
   const [cmd, payload] = msg.text.trim().split(/\s+/, 2);
-  const button = { inline_keyboard: [[{ text: "🎁 Открыть FORTUM DROPS", web_app: { url: appUrl } }]] };
+  const button = { inline_keyboard: [[{ text: "Играть", web_app: { url: appUrl } }]] };
 
   try {
     if (cmd === "/start") {
@@ -74,15 +73,15 @@ Deno.serve(async (req) => {
         parse_mode: "HTML",
         text:
           "<b>Как играть</b>\n\n" +
-          "• Открывай кейсы за звёзды симулятора — выпадают NFT-подарки и звёзды\n" +
-          "• Подарки можно продать, поставить в апгрейд, контракт или джекпот\n" +
-          "• Звёзды бесплатные: старт, ежедневный бонус, задания, уровни, друзья\n" +
-          "• Шансы каждого кейса видны на его странице\n\n" +
-          "Подарки и звёзды виртуальные, вывести их нельзя.",
+          "• Открывай кейсы — выпадают подарки и звёзды\n" +
+          "• Подарки продавай или ставь в апгрейд, контракт, джекпот\n" +
+          "• Звёзды — за бонус дня, задания, уровни и друзей\n" +
+          "• Шансы видны на странице каждого кейса\n\n" +
+          "Подарки внутриигровые, вывода нет.",
         reply_markup: button,
       });
     } else {
-      await tg("sendMessage", { chat_id: msg.chat.id, text: "Жми кнопку, чтобы открыть приложение 👇", reply_markup: button });
+      await tg("sendMessage", { chat_id: msg.chat.id, text: "Жми «Играть» 👇", reply_markup: button });
     }
   } catch (e) {
     console.error("bot", e);

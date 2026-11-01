@@ -59,7 +59,7 @@ export function Mines() {
 
   return (
     <>
-      <GameHeader title="Мины" sub="Открывай клетки и забирай выигрыш, пока не попал на мину" />
+      <GameHeader title="Мины" sub="Больше мин — выше множитель" />
       <div class="mines-grid glass">
         {Array.from({ length: 25 }, (_, i) => {
           const revealed = round?.revealed.includes(i);
@@ -86,7 +86,7 @@ export function Mines() {
             <div><span class="dim">Открыто</span><b>{opened}/{25 - round!.mines}</b></div>
           </div>
           <button class="btn gold" disabled={busy || opened === 0} onClick={() => call("mines_cashout", { round_id: round!.round_id })}>
-            {opened === 0 ? "Откройте хотя бы одну клетку" : `Забрать ${fmt(cashoutValue)} ★`}
+            {opened === 0 ? "Открой клетку" : `Забрать ${fmt(cashoutValue)} ★`}
           </button>
         </>
       ) : (

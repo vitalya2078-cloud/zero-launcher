@@ -101,7 +101,10 @@ button {
   margin: 0 -16px 6px;
   padding-left: 16px;
   padding-right: 16px;
-  background: linear-gradient(var(--bg) 55%, transparent);
+  background: rgba(7, 11, 24, 0.88);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .brand {
@@ -883,14 +886,17 @@ h1 {
   }
 }
 
-.win .lottie,
-.win img,
-.win .art {
-  width: 200px;
-  height: 200px;
-  margin: 4px auto 0;
+/* картинка приза — отдельный блок по центру, метка редкости всегда под ней */
+.win-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 210px;
+  margin: 4px auto 6px;
   position: relative;
 }
+.win-art img, .win-art .art { max-width: 200px; max-height: 200px; }
+.win-art .lottie img { width: 100%; height: 100%; }
 
 .win .rarity {
   display: inline-block;
@@ -1236,7 +1242,8 @@ h1 {
 .gift-card img, .reel-item img { border-radius: 14px; }
 .case-card .art-wrap img { border-radius: 20px; }
 .case-hero img { border-radius: 26px; }
-.win img, .lottie img { border-radius: 28px; }
+.win-art img, .lottie img { border-radius: 28px; }
+.pick-box img, .pick-box .art { border-radius: 12px; }
 .lottie svg { border-radius: 28px; }
 .section-title span { white-space: nowrap; margin-left: 10px; }
 
@@ -1364,3 +1371,4 @@ h1 {
 }
 .game-card:active .game-art { transform: scale(0.95); }
 .game-card .soon { z-index: 2; }
+.win .rarity { display: inline-block; margin-top: 0; }

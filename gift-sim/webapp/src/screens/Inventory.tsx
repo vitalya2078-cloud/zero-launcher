@@ -71,7 +71,7 @@ export function Inventory() {
       <div class="inv-head glass">
         <div style={{ flex: 1 }}>
           <div class="dim" style={{ fontSize: 13 }}>
-            Стоимость коллекции · {inv.items.length} {plural(inv.items.length, "подарок", "подарка", "подарков")}
+            Коллекция · {inv.items.length} {plural(inv.items.length, "подарок", "подарка", "подарков")}
           </div>
           <div class="total num">
             <Star size={22} /> {fmt(inv.total_value)}
@@ -93,7 +93,7 @@ export function Inventory() {
       {inv.items.length === 0 ? (
         <div class="empty glass">
           <div class="big">🎁</div>
-          <div>Здесь будут ваши подарки</div>
+          <div>Пока пусто — открой первый кейс</div>
           <button class="btn" style={{ marginTop: 16 }} onClick={() => tab({ name: "home" })}>
             Открыть кейс
           </button>
@@ -151,7 +151,7 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
     <Sheet onClose={onClose}>
       <div class="win" style={{ "--rc": RARITY[item.rarity].color }}>
         <div class="rays" />
-        <GiftLottie gift={{ ...item, id: item.gift_id }} size={180} />
+        <div class="win-art"><GiftLottie gift={{ ...item, id: item.gift_id }} size={190} /></div>
         <div class="rarity">{RARITY[item.rarity].name}</div>
         <h2>{item.name}</h2>
         <div class="value num" style={{ marginBottom: 8 }}>
@@ -163,12 +163,12 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
           )}
         </div>
         <div class="dim num" style={{ fontSize: 12, marginBottom: 10 }}>
-          При получении: {fmt(item.value_at_drop)} ★
+          Был при получении: {fmt(item.value_at_drop)} ★
         </div>
       </div>
       <div class="glass" style={{ padding: 12, marginBottom: 14 }}>
         <div class="dim" style={{ fontSize: 12, marginBottom: 6 }}>
-          Цена за 7 дней (минимальная цена коллекции на Fragment)
+          Цена за неделю
         </div>
         <PriceChart points={hist?.points ?? []} />
       </div>
@@ -183,7 +183,7 @@ function PriceChart({ points }: { points: { t: string; stars: number }[] }) {
   if (points.length < 2) {
     return (
       <div class="dim" style={{ height: 120, display: "grid", placeItems: "center", fontSize: 13 }}>
-        История цен собирается — график появится через пару часов
+        График появится чуть позже
       </div>
     );
   }

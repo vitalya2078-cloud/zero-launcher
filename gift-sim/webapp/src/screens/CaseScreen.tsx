@@ -178,9 +178,9 @@ export function CaseScreen({ id }: { id: string }) {
       <div class="open-actions">
         <button class="btn" disabled={spinning || !canAfford} onClick={open}>
           {spinning ? (
-            "Открываем…"
+            "Крутим…"
           ) : data.pay_mode === "free" ? (
-            cooldown ? `Доступно через ${cooldown}` : "Открыть бесплатно"
+            cooldown ? `Через ${cooldown}` : "Открыть"
           ) : data.pay_mode === "keys" ? (
             <>
               Открыть за <KeyIcon size={18} /> {data.price_keys}
@@ -193,7 +193,7 @@ export function CaseScreen({ id }: { id: string }) {
         </button>
         {!canAfford && !spinning && data.pay_mode === "stars" && (
           <div class="dim" style={{ textAlign: "center", fontSize: 13 }}>
-            Не хватает {fmt(data.price - (p?.balance ?? 0))} ★ — заберите бонус или продайте подарки
+            Не хватает {fmt(data.price - (p?.balance ?? 0))} ★
           </div>
         )}
         <button
@@ -209,8 +209,8 @@ export function CaseScreen({ id }: { id: string }) {
       </div>
 
       <div class="section-title">
-        <h2>Содержимое</h2>
-        <span>шансы честные, считает сервер</span>
+        <h2>Что внутри</h2>
+        <span>шанс выпадения</span>
       </div>
       <div class="gift-grid">
         {data.items.map((g) => (
@@ -229,12 +229,12 @@ export function CaseScreen({ id }: { id: string }) {
         <Sheet onClose={() => setResult(null)}>
           <div class="win" style={{ "--rc": RARITY[result.gift.rarity].color }}>
             <div class="rays" />
-            {result.gift.kind === "nft" ? <GiftLottie gift={result.gift} size={200} /> : <GiftArt gift={result.gift} size={200} />}
+            <div class="win-art">{result.gift.kind === "nft" ? <GiftLottie gift={result.gift} size={200} /> : <GiftArt gift={result.gift} size={180} />}</div>
             <div class="rarity">{RARITY[result.gift.rarity].name}</div>
             <h2>{result.gift.kind === "stars" ? `${fmt(result.gift.value)} звёзд` : result.gift.name}</h2>
             <div class="value num">
               {result.gift.kind === "stars" ? (
-                <span class="muted">Зачислено на баланс</span>
+                <span class="muted">Уже на балансе</span>
               ) : (
                 <>
                   <Star size={20} /> {fmt(result.gift.value)}
@@ -257,7 +257,7 @@ export function CaseScreen({ id }: { id: string }) {
               </div>
             ) : (
               <button class="btn" onClick={() => setResult(null)}>
-                Отлично
+                Забрать
               </button>
             )}
             {canAfford && data.pay_mode !== "free" && (
@@ -269,7 +269,7 @@ export function CaseScreen({ id }: { id: string }) {
                   setTimeout(open, 250);
                 }}
               >
-                Открыть ещё раз
+                Ещё раз
               </button>
             )}
           </div>

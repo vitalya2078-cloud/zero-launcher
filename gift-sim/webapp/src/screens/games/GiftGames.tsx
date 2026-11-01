@@ -57,7 +57,7 @@ export function Upgrade() {
   const C = 2 * Math.PI * 92;
   return (
     <>
-      <GameHeader title="Апгрейд" sub="Поставьте подарки и выберите цель дороже. Шанс = стоимость ставки / цель × 0,9" />
+      <GameHeader title="Апгрейд" sub="Чем ближе цены — тем выше шанс" />
       <div class="upgrade-stage glass">
         <svg viewBox="0 0 220 220" class="upgrade-ring">
           <circle cx="110" cy="110" r="92" fill="none" stroke="rgba(255,90,110,.35)" stroke-width="14" />
@@ -97,7 +97,7 @@ export function Upgrade() {
         </button>
       </div>
       <button class="btn" disabled={busy || !stake.length || !target || target.value <= stakeValue} onClick={go}>
-        {busy ? "Крутим…" : "Апгрейд"}
+        {busy ? "Крутим" : "Апгрейд"}
       </button>
 
       {picking === "stake" && (
@@ -107,7 +107,7 @@ export function Upgrade() {
       {picking === "target" && (
         <TargetPicker min={stakeValue} onClose={() => setPicking(null)} onPick={(g) => { setTarget(g); setPicking(null); }} />
       )}
-      {won && <PrizeSheet gift={won} note="Апгрейд удался!" onClose={() => setWon(null)} />}
+      {won && <PrizeSheet gift={won} note="Апгрейд зашёл!" onClose={() => setWon(null)} />}
     </>
   );
 }
@@ -119,7 +119,7 @@ function TargetPicker({ min, onPick, onClose }: { min: number; onPick: (g: Gift)
   }, [min]);
   return (
     <Sheet onClose={onClose}>
-      <div class="section-title" style={{ marginTop: 0 }}><h2>Цель апгрейда</h2><span>дороже ставки в 1,2–50 раз</span></div>
+      <div class="section-title" style={{ marginTop: 0 }}><h2>Цель</h2><span>шанс под каждым</span></div>
       {!list ? <div class="skeleton" style={{ height: 200 }} /> : list.length === 0 ? <div class="empty">Нет подходящих подарков</div> : (
         <div class="gift-grid" style={{ maxHeight: "60vh", overflowY: "auto", padding: 2 }}>
           {list.map((g) => (
@@ -167,7 +167,7 @@ export function Contract() {
 
   return (
     <>
-      <GameHeader title="Контракт" sub="Отдайте 3–10 подарков — получите один случайный, в среднем 90% от их стоимости (от ×0,25 до ×5)" />
+      <GameHeader title="Контракт" sub="Приз от ×0,25 до ×5 от стоимости" />
       <div class={`contract-slots glass ${busy ? "signing" : ""}`}>
         {Array.from({ length: 10 }, (_, i) => {
           const g = items[i];
@@ -184,7 +184,7 @@ export function Contract() {
         <div><span class="dim">Возможный приз</span><b>{value ? `${short(value * 0.25)}–${short(value * 5)}` : "—"}</b></div>
       </div>
       <button class="btn" disabled={busy || items.length < 3} onClick={sign}>
-        {busy ? "Подписываем…" : items.length < 3 ? `Добавьте ещё ${3 - items.length}` : `Подписать контракт · ${fmt(value)} ★`}
+        {busy ? "Подписываем" : items.length < 3 ? `Добавьте ещё ${3 - items.length}` : `Подписать контракт · ${fmt(value)} ★`}
       </button>
       {picking && <ItemPicker title="Подарки для контракта" min={0} max={10} onClose={() => setPicking(false)} onDone={(x) => { setItems(x); setPicking(false); }} />}
       {won && <PrizeSheet gift={won.gift} note={`Контракт на ${fmt(won.stake)} ★ исполнен`} onClose={() => setWon(null)} />}

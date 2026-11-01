@@ -63,7 +63,7 @@ export function Profile() {
         </div>
         <div class="stat glass">
           <b class="num">{p.referral_keys}</b>
-          <span>реф. ключей</span>
+          <span>ключей</span>
         </div>
         <div class="stat glass">
           <b class="num">{p.invited_active}</b>
@@ -72,11 +72,11 @@ export function Profile() {
       </div>
 
       <div class="section-title">
-        <h2>Пригласить друзей</h2>
+        <h2>Друзья</h2>
       </div>
       <div class="ref-box glass">
         <div class="muted" style={{ fontSize: 14 }}>
-          Друг получит <b>+1 000 ★</b>. Вы — <b>+1 500 ★</b> и <KeyIcon size={14} /> ключ, когда он дойдёт до 2 уровня, а ещё 3% от его ставок.
+          Другу — <b>1 000 ★</b> на старт. Тебе — <b>1 500 ★</b> и <KeyIcon size={14} /> ключ, когда он возьмёт 2 уровень, плюс 3% с его ставок.
         </div>
         <div class="ref-link">{link}</div>
         <div class="row">
@@ -89,7 +89,7 @@ export function Profile() {
           >
             Копировать
           </button>
-          <button class="btn small" style={{ height: 44 }} onClick={() => shareLink(link, "Открывай кейсы с подарками Telegram в FORTUM DROPS 🎁")}>
+          <button class="btn small" style={{ height: 44 }} onClick={() => shareLink(link, "Залетай в FORTUM DROPS: кейсы с NFT-подарками, краш и битвы. По моей ссылке +1 000 ★")}>
             Поделиться
           </button>
         </div>
@@ -98,14 +98,14 @@ export function Profile() {
       {tasks && (
         <>
           <div class="section-title">
-            <h2>Ежедневные задания</h2>
-            <span>обновляются в 00:00 UTC</span>
+            <h2>Задания дня</h2>
+            <span>сброс в 03:00 МСК</span>
           </div>
           {daily.map((t) => (
             <TaskRow t={t} busy={busy === t.id} onClaim={() => claim(t)} />
           ))}
           <div class="section-title">
-            <h2>Задания</h2>
+            <h2>Достижения</h2>
           </div>
           {once.map((t) => (
             <TaskRow t={t} busy={busy === t.id} onClaim={() => claim(t)} />

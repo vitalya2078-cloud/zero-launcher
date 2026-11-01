@@ -29,7 +29,7 @@ export function TopBar() {
     <div class="topbar">
       <div class="brand">
         FORTUM DROPS
-        <small>GIFT SIMULATOR</small>
+        <small>КЕЙСЫ · ИГРЫ</small>
       </div>
       <div class="spacer" />
       {p && p.referral_keys > 0 && (

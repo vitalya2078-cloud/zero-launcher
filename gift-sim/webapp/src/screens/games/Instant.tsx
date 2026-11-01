@@ -66,7 +66,7 @@ export function Coinflip() {
 
   return (
     <>
-      <GameHeader title="Монетка" sub="Угадай сторону — выигрыш ×1,92" />
+      <GameHeader title="Монетка" sub="Угадай сторону" />
       <div class="coin-stage glass">
         <div class="coin" style={{ transform: `rotateY(${turns}deg)` }}>
           <div class="coin-face heads">★</div>
@@ -81,7 +81,7 @@ export function Coinflip() {
         options={[{ id: "heads", label: "★ Звезда" }, { id: "tails", label: "◆ Кристалл" }]}
       />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={flip}>{busy ? "Крутим…" : `Подбросить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={flip}>{busy ? "Крутим" : `Подбросить за ${fmt(bet)} ★`}</button>
     </>
   );
 }
@@ -139,7 +139,7 @@ export function Wheel() {
 
   return (
     <>
-      <GameHeader title="Колесо" sub="Выбери риск: чем выше, тем больше множители и пустых секторов" />
+      <GameHeader title="Колесо" sub="Выше риск — жирнее множители" />
       <div class="wheel-stage glass">
         <div class="wheel-pointer" />
         <svg viewBox="0 0 300 300" class="wheel" style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 4s cubic-bezier(0.15, 0.8, 0.2, 1)" : "none" }}>
@@ -161,7 +161,7 @@ export function Wheel() {
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       <Segmented value={risk} disabled={busy} onChange={(v) => { setRisk(v); setSegs(WHEEL_PREVIEW[v]); setRes(null); }} options={RISKS} />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={spin}>{busy ? "Крутим…" : `Крутить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={spin}>{busy ? "Крутим" : `Крутить за ${fmt(bet)} ★`}</button>
     </>
   );
 }
@@ -215,7 +215,7 @@ export function Plinko() {
 
   return (
     <>
-      <GameHeader title="Плинко" sub="Шарик падает через 12 рядов — множитель там, где он остановится" />
+      <GameHeader title="Плинко" sub="12 рядов, множитель внизу" />
       <div class="plinko-stage glass">
         <svg viewBox="0 0 320 300" class="plinko">
           {Array.from({ length: ROWS }, (_, row) =>
@@ -243,7 +243,7 @@ export function Plinko() {
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       <Segmented value={risk} disabled={busy} onChange={(v) => { setRisk(v); setRes(null); }} options={RISKS} />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={drop}>{busy ? "Падает…" : `Бросить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={drop}>{busy ? "Падает" : `Бросить за ${fmt(bet)} ★`}</button>
     </>
   );
 }

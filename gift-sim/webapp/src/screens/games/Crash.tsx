@@ -159,7 +159,7 @@ export function Crash() {
 
   return (
     <>
-      <GameHeader title="Краш" sub="Множитель растёт — заберите ставку до взрыва. Раунд общий для всех" />
+      <GameHeader title="Краш" sub="Один раунд на всех игроков" />
       <div class="crash-history">
         {s?.history.map((h) => <span class={`hchip ${h >= 2 ? (h >= 10 ? "gold" : "good") : ""}`}>×{Number(h).toFixed(2)}</span>)}
       </div>
@@ -176,7 +176,7 @@ export function Crash() {
           ) : (
             <>
               <div class="crash-mult num" style={{ color: "var(--err)" }}>×{mult.toFixed(2)}</div>
-              <div class="dim" style={{ fontSize: 13 }}>Взрыв! Новый раунд через {nextIn.toFixed(0)}с</div>
+              <div class="dim" style={{ fontSize: 13 }}>Взрыв! Следующий через {nextIn.toFixed(0)}с</div>
             </>
           )}
         </div>
@@ -201,7 +201,7 @@ export function Crash() {
             <span class="dim">×</span>
           </div>
           <button class="btn" disabled={busy || s?.phase !== "betting"} onClick={placeBet}>
-            {s?.phase === "betting" ? `Поставить ${fmt(bet)} ★` : "Ждём следующий раунд…"}
+            {s?.phase === "betting" ? `Поставить ${fmt(bet)} ★` : "Ждём следующий раунд"}
           </button>
         </>
       )}

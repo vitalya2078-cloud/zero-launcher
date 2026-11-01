@@ -80,7 +80,7 @@ export function Jackpot() {
 
   return (
     <>
-      <GameHeader title="Джекпот" sub="Ставьте подарки в общий банк. Шанс забрать всё = ваша доля банка" />
+      <GameHeader title="Джекпот" sub="Больше вклад — выше шанс" />
       <div class="jackpot-stage glass">
         <svg viewBox="0 0 220 220" class="jackpot-ring">
           <circle cx="110" cy="110" r={R} fill="none" stroke="rgba(255,255,255,.08)" stroke-width="18" />
@@ -98,7 +98,7 @@ export function Jackpot() {
           <div class="dim" style={{ fontSize: 12 }}>Банк</div>
           <div class="num" style={{ fontSize: 26, fontWeight: 800 }}>{short(s?.total_value ?? 0)} ★</div>
           <div class="dim num" style={{ fontSize: 12 }}>
-            {left != null ? `розыгрыш через ${left.toFixed(0)}с` : (s?.bets.length ?? 0) > 0 ? "ждём второго игрока" : "банк пуст"}
+            {left != null ? `розыгрыш через ${left.toFixed(0)}с` : (s?.bets.length ?? 0) > 0 ? "ждём соперника" : "банк пуст"}
           </div>
         </div>
       </div>
@@ -186,7 +186,7 @@ export function Battles() {
     setBusy(true);
     try {
       const b = await api<Battle & { cancelled?: boolean; balance?: number }>(method, params);
-      if (b.cancelled) { setView(null); showToast("Битва отменена, звёзды возвращены"); }
+      if (b.cancelled) { setView(null); showToast("Битва отменена, звёзды вернулись"); }
       else setView(b);
       if (b.status === "finished") haptic.heavy(); else haptic.medium();
       refreshProfile().catch(() => {});
@@ -202,11 +202,11 @@ export function Battles() {
 
   return (
     <>
-      <GameHeader title="Битвы кейсов" sub="2–4 игрока открывают одинаковые кейсы. У кого дропы дороже — забирает всё" />
+      <GameHeader title="Битвы кейсов" sub="Дороже дроп — весь банк твой" />
       <button class="btn" onClick={() => setCreating(true)}>Создать битву</button>
 
       <div class="section-title"><h2>Ждут соперников</h2><span>{list?.waiting.length ?? 0}</span></div>
-      {list?.waiting.length === 0 && <div class="empty glass" style={{ padding: 24 }}>Пока никого — создайте свою битву</div>}
+      {list?.waiting.length === 0 && <div class="empty glass" style={{ padding: 24 }}>Пусто. Создай свою битву</div>}
       {list?.waiting.map((b) => <BattleRow b={b} onOpen={() => setView(b)} />)}
 
       {list && list.recent.length > 0 && (
@@ -272,8 +272,8 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
       {b.status === "waiting" && (
         <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
           {!joined && <button class="btn" disabled={busy || !canAfford} onClick={onJoin}>Войти за {fmt(b.cost)} ★</button>}
-          {b.is_creator && <button class="btn secondary" disabled={busy} onClick={onBots}>Заполнить ботами и начать</button>}
-          {b.is_creator && b.players.length === 1 && <button class="btn secondary" disabled={busy} onClick={onCancel}>Отменить и вернуть звёзды</button>}
+          {b.is_creator && <button class="btn secondary" disabled={busy} onClick={onBots}>Добавить ботов</button>}
+          {b.is_creator && b.players.length === 1 && <button class="btn secondary" disabled={busy} onClick={onCancel}>Отменить</button>}
         </div>
       )}
       {b.status === "finished" && (
