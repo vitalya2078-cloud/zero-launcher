@@ -1,0 +1,862 @@
+{
+ "source": "https://fragment.com/gifts (floor = min listed price, sort=price_asc, filter=sale)",
+ "collected_at": "2026-11-01",
+ "stars_per_ton": 81.37,
+ "stars_rate_source": "https://fragment.com/stars/buy: 1000 Stars = 12.29 TON",
+ "gifts": [
+  {
+   "slug": "algorithmcup",
+   "name": "Algorithm Cup",
+   "supply": 59,
+   "floor_ton": 3450.0,
+   "img_num": 1
+  },
+  {
+   "slug": "artisanbrick",
+   "name": "Artisan Brick",
+   "supply": 3053,
+   "floor_ton": 85.0,
+   "img_num": 1
+  },
+  {
+   "slug": "astralshard",
+   "name": "Astral Shard",
+   "supply": 3002,
+   "floor_ton": 147.0,
+   "img_num": 1
+  },
+  {
+   "slug": "bdaycandle",
+   "name": "B-Day Candle",
+   "supply": 24942,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "berrybox",
+   "name": "Berry Box",
+   "supply": 9190,
+   "floor_ton": 10.0,
+   "img_num": 1
+  },
+  {
+   "slug": "bigyear",
+   "name": "Big Year",
+   "supply": 13048,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "blingbinky",
+   "name": "Bling Binky",
+   "supply": 2196,
+   "floor_ton": 29.0,
+   "img_num": 1
+  },
+  {
+   "slug": "bondedring",
+   "name": "Bonded Ring",
+   "supply": 2995,
+   "floor_ton": 49.0,
+   "img_num": 1
+  },
+  {
+   "slug": "bowtie",
+   "name": "Bow Tie",
+   "supply": 9036,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "bunnymuffin",
+   "name": "Bunny Muffin",
+   "supply": 6917,
+   "floor_ton": 9.0,
+   "img_num": 1
+  },
+  {
+   "slug": "candycane",
+   "name": "Candy Cane",
+   "supply": 17262,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "chillflame",
+   "name": "Chill Flame",
+   "supply": 46947,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "cloverpin",
+   "name": "Clover Pin",
+   "supply": 19755,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "cookieheart",
+   "name": "Cookie Heart",
+   "supply": 13955,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "crystalball",
+   "name": "Crystal Ball",
+   "supply": 8549,
+   "floor_ton": 15.0,
+   "img_num": 1
+  },
+  {
+   "slug": "cupidcharm",
+   "name": "Cupid Charm",
+   "supply": 6042,
+   "floor_ton": 27.0,
+   "img_num": 1
+  },
+  {
+   "slug": "deskcalendar",
+   "name": "Desk Calendar",
+   "supply": 34663,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "diamondring",
+   "name": "Diamond Ring",
+   "supply": 8702,
+   "floor_ton": 37.0,
+   "img_num": 1
+  },
+  {
+   "slug": "durovscap",
+   "name": "Durov’s Cap",
+   "supply": 3261,
+   "floor_ton": 465.0,
+   "img_num": 1
+  },
+  {
+   "slug": "durovsglasses",
+   "name": "Durov’s Glasses",
+   "supply": 702,
+   "floor_ton": 150.0,
+   "img_num": 1
+  },
+  {
+   "slug": "easteregg",
+   "name": "Easter Egg",
+   "supply": 27982,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "electricskull",
+   "name": "Electric Skull",
+   "supply": 4415,
+   "floor_ton": 35.0,
+   "img_num": 1
+  },
+  {
+   "slug": "eternalcandle",
+   "name": "Eternal Candle",
+   "supply": 12811,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "eternalrose",
+   "name": "Eternal Rose",
+   "supply": 5846,
+   "floor_ton": 35.0,
+   "img_num": 1
+  },
+  {
+   "slug": "evileye",
+   "name": "Evil Eye",
+   "supply": 18775,
+   "floor_ton": 9.0,
+   "img_num": 1
+  },
+  {
+   "slug": "faithamulet",
+   "name": "Faith Amulet",
+   "supply": 12460,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "finepen",
+   "name": "Fine Pen",
+   "supply": 3675,
+   "floor_ton": 9.0,
+   "img_num": 1
+  },
+  {
+   "slug": "flyingbroom",
+   "name": "Flying Broom",
+   "supply": 6857,
+   "floor_ton": 15.0,
+   "img_num": 1
+  },
+  {
+   "slug": "freshsocks",
+   "name": "Fresh Socks",
+   "supply": 12636,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "gemsignet",
+   "name": "Gem Signet",
+   "supply": 2190,
+   "floor_ton": 72.0,
+   "img_num": 1
+  },
+  {
+   "slug": "genielamp",
+   "name": "Genie Lamp",
+   "supply": 2783,
+   "floor_ton": 40.0,
+   "img_num": 1
+  },
+  {
+   "slug": "gingercookie",
+   "name": "Ginger Cookie",
+   "supply": 18887,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "hangingstar",
+   "name": "Hanging Star",
+   "supply": 7258,
+   "floor_ton": 11.0,
+   "img_num": 1
+  },
+  {
+   "slug": "happybrownie",
+   "name": "Happy Brownie",
+   "supply": 11985,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "heartlocket",
+   "name": "Heart Locket",
+   "supply": 1331,
+   "floor_ton": 1444.0,
+   "img_num": 1
+  },
+  {
+   "slug": "heroichelmet",
+   "name": "Heroic Helmet",
+   "supply": 1349,
+   "floor_ton": 199.0,
+   "img_num": 1
+  },
+  {
+   "slug": "hexpot",
+   "name": "Hex Pot",
+   "supply": 14872,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "holidaydrink",
+   "name": "Holiday Drink",
+   "supply": 6703,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "homemadecake",
+   "name": "Homemade Cake",
+   "supply": 33687,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "hypnolollipop",
+   "name": "Hypno Lollipop",
+   "supply": 9196,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "icecream",
+   "name": "Ice Cream",
+   "supply": 37243,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "inputkey",
+   "name": "Input Key",
+   "supply": 15404,
+   "floor_ton": 8.0,
+   "img_num": 1
+  },
+  {
+   "slug": "instantramen",
+   "name": "Instant Ramen",
+   "supply": 25962,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "intelligencecup",
+   "name": "Intelligence Cup",
+   "supply": 26,
+   "floor_ton": 3099.0,
+   "img_num": 2
+  },
+  {
+   "slug": "iongem",
+   "name": "Ion Gem",
+   "supply": 2730,
+   "floor_ton": 85.0,
+   "img_num": 1
+  },
+  {
+   "slug": "ionicdryer",
+   "name": "Ionic Dryer",
+   "supply": 2802,
+   "floor_ton": 17.0,
+   "img_num": 1
+  },
+  {
+   "slug": "jackinthebox",
+   "name": "Jack-in-the-Box",
+   "supply": 16906,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "jellybunny",
+   "name": "Jelly Bunny",
+   "supply": 14363,
+   "floor_ton": 9.0,
+   "img_num": 1
+  },
+  {
+   "slug": "jesterhat",
+   "name": "Jester Hat",
+   "supply": 13666,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "jinglebells",
+   "name": "Jingle Bells",
+   "supply": 9102,
+   "floor_ton": 12.0,
+   "img_num": 1
+  },
+  {
+   "slug": "jollychimp",
+   "name": "Jolly Chimp",
+   "supply": 15773,
+   "floor_ton": 8.0,
+   "img_num": 1
+  },
+  {
+   "slug": "joyfulbundle",
+   "name": "Joyful Bundle",
+   "supply": 4329,
+   "floor_ton": 11.0,
+   "img_num": 1
+  },
+  {
+   "slug": "khabibspapakha",
+   "name": "Khabib’s Papakha",
+   "supply": 3654,
+   "floor_ton": 27.0,
+   "img_num": 1
+  },
+  {
+   "slug": "kissedfrog",
+   "name": "Kissed Frog",
+   "supply": 7731,
+   "floor_ton": 62.0,
+   "img_num": 1
+  },
+  {
+   "slug": "libertyfigure",
+   "name": "Liberty Figure",
+   "supply": 25011,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lightsword",
+   "name": "Light Sword",
+   "supply": 17684,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lolpop",
+   "name": "Lol Pop",
+   "supply": 69495,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lootbag",
+   "name": "Loot Bag",
+   "supply": 6674,
+   "floor_ton": 150.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lovecandle",
+   "name": "Love Candle",
+   "supply": 3367,
+   "floor_ton": 13.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lovepotion",
+   "name": "Love Potion",
+   "supply": 6897,
+   "floor_ton": 16.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lowrider",
+   "name": "Low Rider",
+   "supply": 6889,
+   "floor_ton": 70.0,
+   "img_num": 1
+  },
+  {
+   "slug": "luckylocket",
+   "name": "Lucky Locket",
+   "supply": 303,
+   "floor_ton": 17.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lunarsnake",
+   "name": "Lunar Snake",
+   "supply": 19971,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "lushbouquet",
+   "name": "Lush Bouquet",
+   "supply": 6897,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "madpumpkin",
+   "name": "Mad Pumpkin",
+   "supply": 6813,
+   "floor_ton": 21.0,
+   "img_num": 1
+  },
+  {
+   "slug": "magicpotion",
+   "name": "Magic Potion",
+   "supply": 3327,
+   "floor_ton": 75.0,
+   "img_num": 1
+  },
+  {
+   "slug": "mightyarm",
+   "name": "Mighty Arm",
+   "supply": 1853,
+   "floor_ton": 150.0,
+   "img_num": 1
+  },
+  {
+   "slug": "minioscar",
+   "name": "Mini Oscar",
+   "supply": 2190,
+   "floor_ton": 105.0,
+   "img_num": 1
+  },
+  {
+   "slug": "moneypot",
+   "name": "Money Pot",
+   "supply": 9787,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "moodpack",
+   "name": "Mood Pack",
+   "supply": 16494,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "moonpendant",
+   "name": "Moon Pendant",
+   "supply": 13693,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "moussecake",
+   "name": "Mousse Cake",
+   "supply": 8276,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "nailbracelet",
+   "name": "Nail Bracelet",
+   "supply": 1945,
+   "floor_ton": 149.0,
+   "img_num": 1
+  },
+  {
+   "slug": "nekohelmet",
+   "name": "Neko Helmet",
+   "supply": 4283,
+   "floor_ton": 45.0,
+   "img_num": 1
+  },
+  {
+   "slug": "partysparkler",
+   "name": "Party Sparkler",
+   "supply": 22049,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "perfumebottle",
+   "name": "Perfume Bottle",
+   "supply": 2190,
+   "floor_ton": 109.0,
+   "img_num": 1
+  },
+  {
+   "slug": "petsnake",
+   "name": "Pet Snake",
+   "supply": 12126,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "plushpepe",
+   "name": "Plush Pepe",
+   "supply": 2484,
+   "floor_ton": 7000.0,
+   "img_num": 1
+  },
+  {
+   "slug": "poolfloat",
+   "name": "Pool Float",
+   "supply": 16569,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "preciouspeach",
+   "name": "Precious Peach",
+   "supply": 2164,
+   "floor_ton": 295.0,
+   "img_num": 1
+  },
+  {
+   "slug": "prettyposy",
+   "name": "Pretty Posy",
+   "supply": 6074,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "rarebird",
+   "name": "Rare Bird",
+   "supply": 3820,
+   "floor_ton": 30.0,
+   "img_num": 1
+  },
+  {
+   "slug": "recordplayer",
+   "name": "Record Player",
+   "supply": 5645,
+   "floor_ton": 13.0,
+   "img_num": 1
+  },
+  {
+   "slug": "resistancedog",
+   "name": "Resistance Dog",
+   "supply": 591,
+   "floor_ton": 550.0,
+   "img_num": 1
+  },
+  {
+   "slug": "restlessjar",
+   "name": "Restless Jar",
+   "supply": 10026,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "sakuraflower",
+   "name": "Sakura Flower",
+   "supply": 14558,
+   "floor_ton": 12.0,
+   "img_num": 1
+  },
+  {
+   "slug": "santahat",
+   "name": "Santa Hat",
+   "supply": 12976,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "scaredcat",
+   "name": "Scared Cat",
+   "supply": 14513,
+   "floor_ton": 299.0,
+   "img_num": 1
+  },
+  {
+   "slug": "sharptongue",
+   "name": "Sharp Tongue",
+   "supply": 3941,
+   "floor_ton": 55.0,
+   "img_num": 1
+  },
+  {
+   "slug": "signetring",
+   "name": "Signet Ring",
+   "supply": 7376,
+   "floor_ton": 38.0,
+   "img_num": 1
+  },
+  {
+   "slug": "skullflower",
+   "name": "Skull Flower",
+   "supply": 7147,
+   "floor_ton": 14.0,
+   "img_num": 1
+  },
+  {
+   "slug": "skystilettos",
+   "name": "Sky Stilettos",
+   "supply": 6317,
+   "floor_ton": 20.0,
+   "img_num": 1
+  },
+  {
+   "slug": "sleighbell",
+   "name": "Sleigh Bell",
+   "supply": 4386,
+   "floor_ton": 14.0,
+   "img_num": 1
+  },
+  {
+   "slug": "snakebox",
+   "name": "Snake Box",
+   "supply": 10566,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "snoopcigar",
+   "name": "Snoop Cigar",
+   "supply": 19091,
+   "floor_ton": 19.0,
+   "img_num": 1
+  },
+  {
+   "slug": "snoopdogg",
+   "name": "Snoop Dogg",
+   "supply": 58036,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "snowglobe",
+   "name": "Snow Globe",
+   "supply": 6745,
+   "floor_ton": 8.0,
+   "img_num": 1
+  },
+  {
+   "slug": "snowmittens",
+   "name": "Snow Mittens",
+   "supply": 5194,
+   "floor_ton": 10.0,
+   "img_num": 1
+  },
+  {
+   "slug": "spicedwine",
+   "name": "Spiced Wine",
+   "supply": 12676,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "springbasket",
+   "name": "Spring Basket",
+   "supply": 13817,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "spyagaric",
+   "name": "Spy Agaric",
+   "supply": 29332,
+   "floor_ton": 7.0,
+   "img_num": 1
+  },
+  {
+   "slug": "starnotepad",
+   "name": "Star Notepad",
+   "supply": 9509,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "stellarrocket",
+   "name": "Stellar Rocket",
+   "supply": 17375,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "surgeboard",
+   "name": "Surge Board",
+   "supply": 3470,
+   "floor_ton": 9.0,
+   "img_num": 1
+  },
+  {
+   "slug": "swagbag",
+   "name": "Swag Bag",
+   "supply": 21710,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "swisswatch",
+   "name": "Swiss Watch",
+   "supply": 11050,
+   "floor_ton": 65.0,
+   "img_num": 1
+  },
+  {
+   "slug": "tamagadget",
+   "name": "Tama Gadget",
+   "supply": 11588,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "timelessbook",
+   "name": "Timeless Book",
+   "supply": 9644,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "tophat",
+   "name": "Top Hat",
+   "supply": 9202,
+   "floor_ton": 12.0,
+   "img_num": 1
+  },
+  {
+   "slug": "toybear",
+   "name": "Toy Bear",
+   "supply": 29938,
+   "floor_ton": 37.0,
+   "img_num": 1
+  },
+  {
+   "slug": "trappedheart",
+   "name": "Trapped Heart",
+   "supply": 9864,
+   "floor_ton": 18.0,
+   "img_num": 1
+  },
+  {
+   "slug": "ufcstrike",
+   "name": "UFC Strike",
+   "supply": 7012,
+   "floor_ton": 19.0,
+   "img_num": 1
+  },
+  {
+   "slug": "valentinebox",
+   "name": "Valentine Box",
+   "supply": 4075,
+   "floor_ton": 13.0,
+   "img_num": 1
+  },
+  {
+   "slug": "vicecream",
+   "name": "Vice Cream",
+   "supply": 47433,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "victorymedal",
+   "name": "Victory Medal",
+   "supply": 16314,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "vintagecigar",
+   "name": "Vintage Cigar",
+   "supply": 9108,
+   "floor_ton": 46.0,
+   "img_num": 1
+  },
+  {
+   "slug": "voodoodoll",
+   "name": "Voodoo Doll",
+   "supply": 11162,
+   "floor_ton": 43.0,
+   "img_num": 1
+  },
+  {
+   "slug": "westsidesign",
+   "name": "Westside Sign",
+   "supply": 5327,
+   "floor_ton": 128.0,
+   "img_num": 1
+  },
+  {
+   "slug": "whipcupcake",
+   "name": "Whip Cupcake",
+   "supply": 16048,
+   "floor_ton": 5.0,
+   "img_num": 1
+  },
+  {
+   "slug": "winterwreath",
+   "name": "Winter Wreath",
+   "supply": 10189,
+   "floor_ton": 6.0,
+   "img_num": 1
+  },
+  {
+   "slug": "witchhat",
+   "name": "Witch Hat",
+   "supply": 31498,
+   "floor_ton": 10.0,
+   "img_num": 1
+  },
+  {
+   "slug": "xmasstocking",
+   "name": "Xmas Stocking",
+   "supply": 16597,
+   "floor_ton": 5.0,
+   "img_num": 1
+  }
+ ]
+}
