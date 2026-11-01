@@ -1,6 +1,6 @@
 import { useRef, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
-import { BetInput, GameHeader, ResultLine, Segmented } from "../../components/game-ui";
+import { BetInput, GameHeader, ResultLine, Segmented, stageBg } from "../../components/game-ui";
 import { fmt } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
@@ -67,10 +67,10 @@ export function Coinflip() {
   return (
     <>
       <GameHeader title="Монетка" sub="Угадай сторону" />
-      <div class="coin-stage glass">
+      <div class="coin-stage glass stage-bg" style={stageBg("coinflip")}>
         <div class="coin" style={{ transform: `rotateY(${turns}deg)` }}>
-          <div class="coin-face heads">★</div>
-          <div class="coin-face tails">◆</div>
+          <img class="coin-face heads" src="./fx/coin-heads.webp" alt="" draggable={false} />
+          <img class="coin-face tails" src="./fx/coin-tails.webp" alt="" draggable={false} />
         </div>
         {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       </div>
@@ -78,7 +78,10 @@ export function Coinflip() {
         value={side}
         disabled={busy}
         onChange={setSide}
-        options={[{ id: "heads", label: "★ Звезда" }, { id: "tails", label: "◆ Кристалл" }]}
+        options={[
+          { id: "heads", label: <><img class="seg-ico" src="./fx/coin-heads.webp" alt="" />Звезда</> },
+          { id: "tails", label: <><img class="seg-ico" src="./fx/coin-tails.webp" alt="" />Кристалл</> },
+        ]}
       />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
       <button class="btn" disabled={busy} onClick={flip}>{busy ? "Крутим" : `Подбросить за ${fmt(bet)} ★`}</button>
@@ -140,14 +143,15 @@ export function Wheel() {
   return (
     <>
       <GameHeader title="Колесо" sub="Выше риск — жирнее множители" />
-      <div class="wheel-stage glass">
-        <div class="wheel-pointer" />
+      <div class="wheel-stage glass stage-bg" style={stageBg("wheel")}>
+        <img class="wheel-pointer" src="./fx/pointer.webp" alt="" draggable={false} />
+        <img class="wheel-rim" src="./fx/rim.webp" alt="" draggable={false} />
         <svg viewBox="0 0 300 300" class="wheel" style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 4s cubic-bezier(0.15, 0.8, 0.2, 1)" : "none" }}>
           {segs.map((m, i) => (
             <g>
               <path d={arc(i)} fill={segColor(m)} stroke="#070b18" stroke-width="1.5" />
               <text
-                x="150" y="30" fill="#fff" font-size="11" font-weight="700" text-anchor="middle"
+                x="150" y="40" fill="#fff" font-size="12" font-weight="700" text-anchor="middle"
                 transform={`rotate(${i * seg + seg / 2} 150 150)`}
               >
                 {m === 0 ? "" : `×${m}`}
@@ -216,7 +220,7 @@ export function Plinko() {
   return (
     <>
       <GameHeader title="Плинко" sub="12 рядов, множитель внизу" />
-      <div class="plinko-stage glass">
+      <div class="plinko-stage glass stage-bg" style={stageBg("plinko")}>
         <svg viewBox="0 0 320 300" class="plinko">
           {Array.from({ length: ROWS }, (_, row) =>
             Array.from({ length: row + 3 }, (_, i) => (
@@ -237,7 +241,7 @@ export function Plinko() {
               </g>
             );
           })}
-          {ball && <circle cx={ball.x} cy={ball.y} r="6" fill="#ffd27a" style={{ transition: "cx .1s linear, cy .1s ease-in", filter: "drop-shadow(0 0 6px #ffb547)" }} />}
+          {ball && <image href="./fx/ball.webp" x={ball.x - 8} y={ball.y - 8} width="16" height="16" style={{ transition: "x .1s linear, y .1s ease-in", filter: "drop-shadow(0 0 5px #ffb547)" }} />}
         </svg>
       </div>
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}

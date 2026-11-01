@@ -1,6 +1,7 @@
+import { stageBg } from "../components/game-ui";
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
-import { KeyIcon, Star } from "../components/icons";
+import { Ico, KeyIcon, Star } from "../components/icons";
 import { fmt } from "../format";
 import { profile, showToast } from "../state";
 import { haptic, referralLink, shareLink, tg } from "../tg";
@@ -43,7 +44,7 @@ export function Profile() {
 
   return (
     <>
-      <div class="me glass" style={{ marginTop: 6 }}>
+      <div class="me glass stage-bg" style={{ marginTop: 6, ...stageBg("profile") }}>
         {p.photo_url ? <img class="avatar" src={p.photo_url} alt="" /> : <div class="avatar">{(p.first_name ?? "?")[0]}</div>}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 800, fontSize: 18 }}>{p.first_name ?? "Игрок"}</div>
@@ -58,21 +59,21 @@ export function Profile() {
 
       <div class="stats3">
         <div class="stat glass">
-          <b class="num">{fmt(p.balance)}</b>
+          <b class="num"><Star size={20} />{fmt(p.balance)}</b>
           <span>звёзд</span>
         </div>
         <div class="stat glass">
-          <b class="num">{p.referral_keys}</b>
+          <b class="num"><KeyIcon size={20} />{p.referral_keys}</b>
           <span>ключей</span>
         </div>
         <div class="stat glass">
-          <b class="num">{p.invited_active}</b>
+          <b class="num"><Ico name="cat-friends" size={20} />{p.invited_active}</b>
           <span>друзей</span>
         </div>
       </div>
 
       <div class="section-title">
-        <h2>Друзья</h2>
+        <h2><Ico name="cat-friends" size={30} />Друзья</h2>
       </div>
       <div class="ref-box glass">
         <div class="muted" style={{ fontSize: 14 }}>
@@ -98,14 +99,14 @@ export function Profile() {
       {tasks && (
         <>
           <div class="section-title">
-            <h2>Задания дня</h2>
+            <h2><Ico name="tasks" size={30} />Задания дня</h2>
             <span>сброс в 03:00 МСК</span>
           </div>
           {daily.map((t) => (
             <TaskRow t={t} busy={busy === t.id} onClaim={() => claim(t)} />
           ))}
           <div class="section-title">
-            <h2>Достижения</h2>
+            <h2><Ico name="games/jackpot" size={30} />Достижения</h2>
           </div>
           {once.map((t) => (
             <TaskRow t={t} busy={busy === t.id} onClaim={() => claim(t)} />
@@ -125,7 +126,8 @@ function TaskRow({ t, busy, onClaim }: { t: Task; busy: boolean; onClaim: () => 
       <div class="t-body">
         <div class="t-title">{t.title}</div>
         <div class="t-sub num">
-          +{fmt(t.reward_stars)} ★{t.reward_keys ? ` · +${t.reward_keys} 🔑` : ""}
+          +{fmt(t.reward_stars)} <Star />
+          {t.reward_keys ? <> · +{t.reward_keys} <KeyIcon size={14} /></> : ""}
           {t.kind === "stat" && !target && ` · ${Math.min(t.progress ?? 0, t.target)}/${t.target}`}
         </div>
         {t.kind === "stat" && !t.claimed && !target && (

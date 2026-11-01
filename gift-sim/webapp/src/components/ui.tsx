@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 import { profile, route, tab, toast, type Route } from "../state";
 import { fmt } from "../format";
 import { haptic } from "../tg";
-import { KeyIcon, Star, TabIcons } from "./icons";
+import { Ico, KeyIcon, Star, type TabIcon } from "./icons";
 
 export function Sheet({ onClose, children }: { onClose: () => void; children: ComponentChildren }) {
   useEffect(() => {
@@ -46,7 +46,7 @@ export function TopBar() {
   );
 }
 
-const TABS: { route: Route; label: string; icon: keyof typeof TabIcons }[] = [
+const TABS: { route: Route; label: string; icon: TabIcon }[] = [
   { route: { name: "home" }, label: "Главная", icon: "home" },
   { route: { name: "games" }, label: "Игры", icon: "games" },
   { route: { name: "inventory" }, label: "Инвентарь", icon: "inventory" },
@@ -58,21 +58,18 @@ export function TabBar() {
   const current = r.name === "case" ? "home" : r.name === "game" ? "games" : r.name;
   return (
     <nav class="tabbar">
-      {TABS.map((t) => {
-        const Icon = TabIcons[t.icon];
-        return (
-          <button
-            class={`tab ${current === t.route.name ? "active" : ""}`}
-            onClick={() => {
-              haptic.tap();
-              tab(t.route);
-            }}
-          >
-            <Icon />
-            {t.label}
-          </button>
-        );
-      })}
+      {TABS.map((t) => (
+        <button
+          class={`tab ${current === t.route.name ? "active" : ""}`}
+          onClick={() => {
+            haptic.tap();
+            tab(t.route);
+          }}
+        >
+          <Ico name={`tab-${t.icon}`} size={30} />
+          {t.label}
+        </button>
+      ))}
     </nav>
   );
 }

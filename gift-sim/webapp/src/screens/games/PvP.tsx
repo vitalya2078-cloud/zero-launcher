@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
 import { GiftArt } from "../../components/GiftArt";
-import { GameHeader, ItemPicker, SmallGift } from "../../components/game-ui";
-import { Star } from "../../components/icons";
+import { GameHeader, ItemPicker, SmallGift, stageBg } from "../../components/game-ui";
+import { Ico, Star } from "../../components/icons";
 import { Sheet } from "../../components/ui";
 import { fmt, short } from "../../format";
 import { profile, refreshInventory, refreshProfile, setBalance, showToast } from "../../state";
@@ -40,7 +40,7 @@ export function Jackpot() {
         const w = st.last_winners[0];
         if (w) {
           haptic.heavy();
-          showToast(`🏆 ${w.user} забирает банк ${short(w.total_value)} ★ (шанс ${w.chance}%)`);
+          showToast(`${w.user} забирает банк ${short(w.total_value)} ★ (шанс ${w.chance}%)`);
           refreshInventory().catch(() => {});
         }
       }
@@ -81,7 +81,7 @@ export function Jackpot() {
   return (
     <>
       <GameHeader title="Джекпот" sub="Больше вклад — выше шанс" />
-      <div class="jackpot-stage glass">
+      <div class="jackpot-stage glass stage-bg" style={stageBg("jackpot")}>
         <svg viewBox="0 0 220 220" class="jackpot-ring">
           <circle cx="110" cy="110" r={R} fill="none" stroke="rgba(255,255,255,.08)" stroke-width="18" />
           {s?.bets.map((b, i) => {
@@ -124,7 +124,7 @@ export function Jackpot() {
           <div class="section-title"><h2>Последние победители</h2></div>
           {s.last_winners.slice(0, 5).map((w) => (
             <div class="bet-line glass">
-              <span class="who">🏆 {w.user}</span>
+              <span class="who"><Ico name="games/jackpot" size={20} /> {w.user}</span>
               <span class="dim num">шанс {w.chance}%</span>
               <span class="num up">{short(w.total_value)} ★</span>
             </div>
@@ -253,18 +253,19 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
         <span class="num">вход {fmt(b.cost)} ★</span>
       </div>
       <div class="gifts-row" style={{ marginBottom: 12 }}>{b.cases.map((c) => c.cover && <SmallGift g={c.cover} />)}</div>
-      <div class="battle-cols" style={{ gridTemplateColumns: `repeat(${b.max_players}, 1fr)` }}>
+      <div class="battle-cols stage-bg" style={{ gridTemplateColumns: `repeat(${b.max_players}, 1fr)`, ...stageBg("battles") }}>
+        {b.max_players === 2 && <img class="vs-badge" src="./fx/vs.webp" alt="VS" />}
         {Array.from({ length: b.max_players }, (_, slot) => {
           const p = b.players.find((x) => x.slot === slot);
           const win = b.status === "finished" && b.winner_slot === slot;
           return (
             <div class={`battle-col glass ${win ? "winner" : ""} ${p?.me ? "me" : ""}`}>
-              <div class="who">{p ? (p.bot ? "🤖 Бот" : p.user) : "ожидание…"}</div>
+              <div class="who">{p ? (p.bot ? "Бот" : p.user) : "ожидание…"}</div>
               {p?.drops?.map((g) => (
                 <div class="battle-drop"><GiftArt gift={g} size={38} /><span class="num">{short(g.value)}</span></div>
               ))}
               {b.status === "finished" && p && <div class="num total">{short(p.total)} ★</div>}
-              {win && <div class="crown">🏆</div>}
+              {win && <Ico name="games/jackpot" size={34} class="crown" />}
             </div>
           );
         })}

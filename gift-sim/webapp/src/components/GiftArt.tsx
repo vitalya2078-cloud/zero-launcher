@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import type { Gift } from "../types";
-import { KeyIcon, Star } from "./icons";
+import { Ico, KeyIcon, Star } from "./icons";
 
 // Картинка приза: NFT — изображение с Fragment; звёзды — большая звезда с суммой; ключ — иконка.
 export function GiftArt({ gift, size = 64 }: { gift: Pick<Gift, "kind" | "image_url" | "name" | "value">; size?: number }) {
@@ -23,8 +23,8 @@ export function GiftArt({ gift, size = 64 }: { gift: Pick<Gift, "kind" | "image_
   }
   if (!gift.image_url || broken) {
     return (
-      <span class="art" style={{ width: size, height: size, fontSize: size * 0.6 }}>
-        🎁
+      <span class="art" style={{ width: size, height: size }}>
+        <Ico name="cat-special" size={size * 0.8} />
       </span>
     );
   }

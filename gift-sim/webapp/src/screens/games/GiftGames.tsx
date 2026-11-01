@@ -1,8 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
 import { GiftArt } from "../../components/GiftArt";
-import { GameHeader, ItemPicker, PrizeSheet } from "../../components/game-ui";
-import { Star } from "../../components/icons";
+import { GameHeader, ItemPicker, PrizeSheet, stageBg } from "../../components/game-ui";
+import { Ico, Star } from "../../components/icons";
 import { Sheet } from "../../components/ui";
 import { fmt, RARITY, short } from "../../format";
 import { refreshInventory, refreshProfile, showToast } from "../../state";
@@ -58,13 +58,13 @@ export function Upgrade() {
   return (
     <>
       <GameHeader title="Апгрейд" sub="Чем ближе цены — тем выше шанс" />
-      <div class="upgrade-stage glass">
+      <div class="upgrade-stage glass stage-bg" style={stageBg("upgrade")}>
         <svg viewBox="0 0 220 220" class="upgrade-ring">
           <circle cx="110" cy="110" r="92" fill="none" stroke="rgba(255,90,110,.35)" stroke-width="14" />
           <circle cx="110" cy="110" r="92" fill="none" stroke="#3ddc97" stroke-width="14"
             stroke-dasharray={`${C * chance} ${C}`} transform="rotate(-90 110 110)" stroke-linecap="butt" />
         </svg>
-        <div class="upgrade-arrow" style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 3.2s cubic-bezier(0.12, 0.8, 0.15, 1)" : "none" }} />
+        <img class="upgrade-arrow" src="./fx/needle.webp" alt="" draggable={false} style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 3.2s cubic-bezier(0.12, 0.8, 0.15, 1)" : "none" }} />
         <div class="upgrade-center">
           <div class="num" style={{ fontSize: 30, fontWeight: 800 }}>{(chance * 100).toFixed(1)}%</div>
           <div class="dim" style={{ fontSize: 12 }}>{lost ? "Не повезло" : "шанс"}</div>
@@ -80,7 +80,7 @@ export function Upgrade() {
               <span class="dim">{stake.length} шт.</span>
             </>
           ) : (
-            <><div class="plus">+</div><span class="dim">Ваши подарки</span></>
+            <><Ico name="tab-inventory" size={52} class="plus" /><span class="dim">Ваши подарки</span></>
           )}
         </button>
         <div class="pick-arrow">→</div>
@@ -92,7 +92,7 @@ export function Upgrade() {
               <span class="dim">×{(target.value / Math.max(1, stakeValue)).toFixed(1)}</span>
             </>
           ) : (
-            <><div class="plus">🎯</div><span class="dim">Цель</span></>
+            <><Ico name="cat-hunt" size={52} class="plus" /><span class="dim">Цель</span></>
           )}
         </button>
       </div>
@@ -168,12 +168,13 @@ export function Contract() {
   return (
     <>
       <GameHeader title="Контракт" sub="Приз от ×0,25 до ×5 от стоимости" />
-      <div class={`contract-slots glass ${busy ? "signing" : ""}`}>
+      <div class={`contract-slots glass stage-bg ${busy ? "signing" : ""}`} style={stageBg("contract")}>
         {Array.from({ length: 10 }, (_, i) => {
           const g = items[i];
           return (
-            <button class="slot" disabled={busy} onClick={() => setPicking(true)}>
-              {g ? <GiftArt gift={g} size={44} /> : <span class="dim">+</span>}
+            <button class={`slot ${g ? "filled" : ""}`} disabled={busy} onClick={() => setPicking(true)}
+              style={g ? undefined : { backgroundImage: "url(./fx/slot-frame.webp)" }}>
+              {g ? <GiftArt gift={g} size={44} /> : <span class="slot-plus">+</span>}
             </button>
           );
         })}
@@ -184,6 +185,7 @@ export function Contract() {
         <div><span class="dim">Возможный приз</span><b>{value ? `${short(value * 0.25)}–${short(value * 5)}` : "—"}</b></div>
       </div>
       <button class="btn" disabled={busy || items.length < 3} onClick={sign}>
+        {items.length >= 3 && <img class="btn-seal" src="./fx/seal.webp" alt="" />}
         {busy ? "Подписываем" : items.length < 3 ? `Добавьте ещё ${3 - items.length}` : `Подписать контракт · ${fmt(value)} ★`}
       </button>
       {picking && <ItemPicker title="Подарки для контракта" min={0} max={10} onClose={() => setPicking(false)} onDone={(x) => { setItems(x); setPicking(false); }} />}

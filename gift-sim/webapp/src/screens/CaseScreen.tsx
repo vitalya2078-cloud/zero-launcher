@@ -1,3 +1,4 @@
+import { stageBg } from "../components/game-ui";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
@@ -156,7 +157,7 @@ export function CaseScreen({ id }: { id: string }) {
 
   return (
     <>
-      <div class="case-hero glass" style={{ "--rc": rc }}>
+      <div class="case-hero glass stage-bg" style={{ "--rc": rc, ...stageBg("case") }}>
         <div class="glow" />
         <GiftArt gift={top} size={140} />
         <h1>{data.name}</h1>
@@ -229,6 +230,7 @@ export function CaseScreen({ id }: { id: string }) {
         <Sheet onClose={() => setResult(null)}>
           <div class="win" style={{ "--rc": RARITY[result.gift.rarity].color }}>
             <div class="rays" />
+            <img class="win-sparkle" src="./fx/sparkle.webp" alt="" />
             <div class="win-art">{result.gift.kind === "nft" ? <GiftLottie gift={result.gift} size={200} /> : <GiftArt gift={result.gift} size={180} />}</div>
             <div class="rarity">{RARITY[result.gift.rarity].name}</div>
             <h2>{result.gift.kind === "stars" ? `${fmt(result.gift.value)} звёзд` : result.gift.name}</h2>

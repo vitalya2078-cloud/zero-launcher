@@ -1,8 +1,9 @@
+import { stageBg } from "../components/game-ui";
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
 import { GiftLottie } from "../components/Lottie";
-import { Star } from "../components/icons";
+import { Ico, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
 import { fmt, plural, RARITY, short } from "../format";
 import { inventory, refreshInventory, setBalance, showToast, tab } from "../state";
@@ -68,7 +69,7 @@ export function Inventory() {
   return (
     <>
       <h1>Инвентарь</h1>
-      <div class="inv-head glass">
+      <div class="inv-head glass stage-bg" style={stageBg("case")}>
         <div style={{ flex: 1 }}>
           <div class="dim" style={{ fontSize: 13 }}>
             Коллекция · {inv.items.length} {plural(inv.items.length, "подарок", "подарка", "подарков")}
@@ -92,7 +93,7 @@ export function Inventory() {
 
       {inv.items.length === 0 ? (
         <div class="empty glass">
-          <div class="big">🎁</div>
+          <Ico name="tab-inventory" size={96} class="big" />
           <div>Пока пусто — открой первый кейс</div>
           <button class="btn" style={{ marginTop: 16 }} onClick={() => tab({ name: "home" })}>
             Открыть кейс

@@ -9,6 +9,12 @@ import { GiftLottie } from "./Lottie";
 import { Star } from "./icons";
 import { Sheet } from "./ui";
 
+// Фон игрового поля: картинка из public/bg под затемняющим градиентом.
+// Задаётся inline-стилем, чтобы относительный путь считался от страницы, а не от CSS-файла.
+export const stageBg = (name: string) => ({
+  backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.3), rgba(7, 11, 24, 0.6)), url(./bg/${name}.webp)`,
+});
+
 // Поле ставки с быстрыми кнопками.
 export function BetInput({ value, onChange, disabled }: { value: number; onChange: (v: number) => void; disabled?: boolean }) {
   const balance = profile.value?.balance ?? 0;
@@ -45,7 +51,7 @@ export function BetInput({ value, onChange, disabled }: { value: number; onChang
 
 export function Segmented<T extends string>({ value, options, onChange, disabled }: {
   value: T;
-  options: { id: T; label: string }[];
+  options: { id: T; label: ComponentChildren }[];
   onChange: (v: T) => void;
   disabled?: boolean;
 }) {
@@ -81,6 +87,7 @@ export function ResultLine({ payout, bet, multiplier }: { payout: number; bet: n
   const win = payout > bet;
   return (
     <div class={`result-line ${win ? "win" : payout > 0 ? "" : "lose"}`}>
+      {win && <img class="result-coins" src="./fx/coins.webp" alt="" />}
       <b class="num">×{Number(multiplier).toFixed(2)}</b>
       <span class="num">{payout > 0 ? `+${fmt(payout)} ★` : `−${fmt(bet)} ★`}</span>
     </div>
@@ -149,6 +156,7 @@ export function PrizeSheet({ gift, title, note, onClose }: { gift: Gift; title?:
     <Sheet onClose={onClose}>
       <div class="win" style={{ "--rc": RARITY[gift.rarity].color }}>
         <div class="rays" />
+        <img class="win-sparkle" src="./fx/sparkle.webp" alt="" />
         <div class="win-art">{gift.kind === "nft" ? <GiftLottie gift={gift} size={200} /> : <GiftArt gift={gift} size={180} />}</div>
         <div class="rarity">{RARITY[gift.rarity].name}</div>
         <h2>{title ?? gift.name}</h2>

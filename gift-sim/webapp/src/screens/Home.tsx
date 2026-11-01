@@ -1,21 +1,36 @@
+import { stageBg } from "../components/game-ui";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
-import { KeyIcon, Star } from "../components/icons";
+import { Ico, KeyIcon, Star } from "../components/icons";
 import { fmt, plural, RARITY, short, timeLeft } from "../format";
 import { go, profile, showToast } from "../state";
 import { haptic } from "../tg";
 import type { CaseCard, Drop, Profile } from "../types";
 
-const CATEGORIES: { id: CaseCard["category"] | "all"; label: string }[] = [
+const CATEGORIES: { id: CaseCard["category"] | "all"; label: string; icon?: string }[] = [
   { id: "all", label: "Все" },
-  { id: "special", label: "Особые" },
-  { id: "gift", label: "Охота" },
-  { id: "price", label: "Классика" },
-  { id: "theme", label: "Коллекции" },
-  { id: "referral", label: "За друзей" },
-  { id: "custom", label: "Акции" },
+  { id: "special", label: "Особые", icon: "cat-special" },
+  { id: "gift", label: "Охота", icon: "cat-hunt" },
+  { id: "price", label: "Классика", icon: "cat-classic" },
+  { id: "theme", label: "Коллекции", icon: "cat-collections" },
+  { id: "referral", label: "За друзей", icon: "cat-friends" },
+  { id: "custom", label: "Акции", icon: "cat-deals" },
 ];
+const CAT_ICON = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.icon]));
+
+// иконки тематических кейсов (по названию)
+const THEME_ICON: Record<string, string> = {
+  "Любовь": "theme-love",
+  "Новый год": "theme-newyear",
+  "Мистика": "theme-mystic",
+  "Сладости": "theme-sweets",
+  "Роскошь": "theme-luxury",
+  "Звёзды": "theme-stars",
+  "Животные": "theme-animals",
+  "Космос": "theme-space",
+  "Герои": "theme-heroes",
+};
 
 const SECTION_TITLES: Record<string, string> = {
   special: "Особые",
@@ -85,6 +100,7 @@ export function Home() {
               setCat(c.id);
             }}
           >
+            {c.icon && <Ico name={c.icon} size={22} />}
             {c.label}
           </button>
         ))}
@@ -101,7 +117,10 @@ export function Home() {
       {groups.map(([category, list]) => (
         <section>
           <div class="section-title">
-            <h2>{SECTION_TITLES[category] ?? category}</h2>
+            <h2>
+              {CAT_ICON[category] && <Ico name={CAT_ICON[category]!} size={30} />}
+              {SECTION_TITLES[category] ?? category}
+            </h2>
             <span>
               {list.length} {plural(list.length, "кейс", "кейса", "кейсов")}
             </span>
@@ -136,6 +155,7 @@ function CaseTile({ c }: { c: CaseCard }) {
     >
       <div class="glow" />
       {c.badge && <span class="badge">{c.badge}</span>}
+      {THEME_ICON[c.name] && <Ico name={THEME_ICON[c.name]} size={34} class="theme-ico" />}
       <div class="art-wrap">{c.cover && <GiftArt gift={c.cover} size={96} />}</div>
       <div class="name">{c.name}</div>
       <div class="sub num">
@@ -143,7 +163,7 @@ function CaseTile({ c }: { c: CaseCard }) {
       </div>
       <div class="price num">
         {c.pay_mode === "free" ? (
-          cooldown ? <span class="dim">⏳ {cooldown}</span> : <span style={{ color: "var(--ok)" }}>Бесплатно</span>
+          cooldown ? <span class="dim cooldown"><Ico name="hourglass" size={16} /> {cooldown}</span> : <span style={{ color: "var(--ok)" }}>Бесплатно</span>
         ) : c.pay_mode === "keys" ? (
           <>
             <KeyIcon /> {c.price_keys}
@@ -198,8 +218,8 @@ function DailyBonus() {
 
   return (
     <>
-      <div class="bonus glass">
-        <div class="bonus-icon">🎁</div>
+      <div class="bonus glass stage-bg" style={stageBg("home")}>
+        <Ico name="daily" size={56} class="bonus-icon" />
         <div class="bonus-text">
           <b>Бонус дня</b>
           <span class="num">{wait ? `Следующий через ${wait}` : `+${fmt(p.daily_next_amount)} ★ уже ждут`}</span>
@@ -215,7 +235,7 @@ function DailyBonus() {
       </div>
       {p.rescue_available && (
         <div class="bonus glass" style={{ marginTop: 10 }}>
-          <div class="bonus-icon">🆘</div>
+          <Ico name="rescue" size={56} class="bonus-icon" />
           <div class="bonus-text">
             <b>Звёзды кончились?</b>
             <span>Держи 700 ★ на отыгрыш</span>

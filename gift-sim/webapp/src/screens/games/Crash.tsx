@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
-import { BetInput, GameHeader } from "../../components/game-ui";
+import { BetInput, GameHeader, stageBg } from "../../components/game-ui";
 import { fmt, short } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
+
+// спрайты ракеты и взрыва рисуются прямо на canvas
+const sprite = (src: string) => { const i = new Image(); i.src = src; return i; };
+const ROCKET = sprite("./fx/rocket.webp");
+const EXPLOSION = sprite("./fx/explosion.webp");
 
 type Bet = { user: string; photo_url: string | null; bet: number; status: "active" | "cashed" | "lost"; cashout_at: number | null; payout: number; me: boolean };
 type State = {
@@ -122,6 +127,22 @@ export function Crash() {
     g.lineTo(x(0), H - 16);
     g.fillStyle = grad;
     g.fill();
+
+    // кончик кривой: ракета летит по касательной, при взрыве — вспышка
+    const tx = x(tEnd), ty = y(Math.exp(s.rate * tEnd));
+    if (s.phase === "crashed") {
+      if (EXPLOSION.complete && EXPLOSION.naturalWidth) g.drawImage(EXPLOSION, tx - 40, ty - 40, 80, 80);
+    } else if (ROCKET.complete && ROCKET.naturalWidth) {
+      const dt = Math.max(tEnd, 0.05) * 0.02;
+      const px = x(tEnd - dt), py = y(Math.exp(s.rate * (tEnd - dt)));
+      const ang = Math.atan2(ty - py, tx - px); // направление полёта на экране
+      const sz = 46, ratio = ROCKET.naturalHeight / ROCKET.naturalWidth;
+      g.save();
+      g.translate(tx, ty);
+      g.rotate(ang + Math.PI / 4); // на картинке нос смотрит вверх-вправо (−45°)
+      g.drawImage(ROCKET, -sz * 0.62, -sz * ratio * 0.38, sz, sz * ratio);
+      g.restore();
+    }
   });
 
   async function placeBet() {
@@ -163,7 +184,7 @@ export function Crash() {
       <div class="crash-history">
         {s?.history.map((h) => <span class={`hchip ${h >= 2 ? (h >= 10 ? "gold" : "good") : ""}`}>×{Number(h).toFixed(2)}</span>)}
       </div>
-      <div class={`crash-stage glass ${s?.phase ?? ""}`}>
+      <div class={`crash-stage glass stage-bg ${s?.phase ?? ""}`} style={stageBg("crash")}>
         <canvas ref={canvas} class="crash-canvas" />
         <div class="crash-center">
           {!s ? "…" : s.phase === "betting" ? (

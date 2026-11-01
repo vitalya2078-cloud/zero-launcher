@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
-import { BetInput, GameHeader } from "../../components/game-ui";
+import { BetInput, GameHeader, stageBg } from "../../components/game-ui";
 import { fmt } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
@@ -60,7 +60,7 @@ export function Mines() {
   return (
     <>
       <GameHeader title="Мины" sub="Больше мин — выше множитель" />
-      <div class="mines-grid glass">
+      <div class="mines-grid glass stage-bg" style={stageBg("mines")}>
         {Array.from({ length: 25 }, (_, i) => {
           const revealed = round?.revealed.includes(i);
           const isMine = round?.positions?.includes(i);
@@ -72,7 +72,7 @@ export function Mines() {
               disabled={!active || revealed || busy}
               onClick={() => call("mines_reveal", { round_id: round!.round_id, cell: i })}
             >
-              {revealed ? (isMine ? "💥" : "💎") : finished && isMine ? "💣" : ""}
+              <img class="tile" src={`./fx/tile-${revealed ? (isMine ? "boom" : "gem") : finished && isMine ? "bomb" : "closed"}.webp`} alt="" draggable={false} />
             </button>
           );
         })}
