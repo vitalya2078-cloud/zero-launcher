@@ -2,7 +2,8 @@
 // с fragment.com и передаёт их в giftsim.apply_prices (история цен + пересчёт шансов в кейсах).
 //
 // Вызывается планировщиком (pg_cron + pg_net) с заголовком x-cron-secret.
-// Переменные окружения: CRON_SECRET (свой секрет), SUPABASE_DB_URL (выдаётся Supabase автоматически).
+// Ключ хранится в закрытой таблице giftsim.settings (key = 'cron_token'), к которой нет доступа у публичных ролей.
+// SUPABASE_DB_URL выдаётся Supabase автоматически.
 
 import postgres from "npm:postgres@3.4.5";
 
@@ -37,13 +38,14 @@ async function floorTon(slug: string): Promise<number | null> {
 }
 
 Deno.serve(async (req) => {
-  const secret = Deno.env.get("CRON_SECRET");
-  if (!secret || req.headers.get("x-cron-secret") !== secret) {
-    return new Response("forbidden", { status: 403 });
-  }
-
   const sql = postgres(Deno.env.get("SUPABASE_DB_URL")!, { max: 1, prepare: false });
   try {
+    const [row] = await sql`select value #>> '{}' as token from giftsim.settings where key = 'cron_token'`;
+    const given = req.headers.get("x-cron-secret") ?? "";
+    if (!row?.token || given.length !== row.token.length || given !== row.token) {
+      return new Response("forbidden", { status: 403 });
+    }
+
     const rate = await starsPerTon();
     if (!rate) throw new Error("не удалось прочитать курс Stars/TON");
 

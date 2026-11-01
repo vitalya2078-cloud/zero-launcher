@@ -19,3 +19,9 @@
 1. Обновить `data/nft_floors.json`.
 2. `python3 tools/build_seed.py > supabase/migrations/0002_giftsim_seed.sql`
 3. Применить `0002` к базе (повторное применение безопасно).
+
+## Обновление цен (развёрнуто)
+
+- Функция `giftsim-prices` (verify_jwt выключен, своя проверка ключа `x-cron-secret`).
+- Ключ хранится в закрытой таблице `giftsim.settings` (`cron_token`), клиентские роли к ней доступа не имеют.
+- Планировщик: `pg_cron`, задача `giftsim-prices-hourly`, каждый час в :17, вызов через `pg_net`.
