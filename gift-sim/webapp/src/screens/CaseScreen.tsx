@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
 import { NftCard } from "../components/NftCard";
+import { CaseCover } from "../components/CaseCover";
 import { KeyIcon, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
 import { chance, fmt, RARITY, short, timeLeft } from "../format";
@@ -239,7 +240,7 @@ export function CaseScreen({ id }: { id: string }) {
     <>
       <div class="case-hero glass stage-bg" style={{ "--rc": rc, ...stageBg("case") }}>
         <div class="glow" />
-        <GiftArt gift={top} size={140} />
+        <CaseCover name={data.name} category={data.category} cover={top} size={156} />
         <h1>{data.name}</h1>
         <p class="muted">{data.description ?? `Главный приз — ${top.name} · ${short(top.value)} ★`}</p>
       </div>

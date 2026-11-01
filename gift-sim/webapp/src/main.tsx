@@ -9,6 +9,7 @@ import { Home } from "./screens/Home";
 import { Inventory } from "./screens/Inventory";
 import { Profile } from "./screens/Profile";
 import { Player, Top } from "./screens/Top";
+import { Market } from "./screens/Market";
 import { Crash } from "./screens/games/Crash";
 import { Contract, Upgrade } from "./screens/games/GiftGames";
 import { Coinflip, Plinko, Wheel } from "./screens/games/Instant";
@@ -21,6 +22,8 @@ import { initTelegram, setBack, tg } from "./tg";
 import type { Profile as P } from "./types";
 
 initTelegram();
+// кнопка «Открыть маркет» из уведомления бота ведёт на …/#market
+if (location.hash === "#market") route.value = { name: "market" };
 
 function App() {
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +71,7 @@ function App() {
       {r.name === "profile" && <Profile />}
       {r.name === "case" && <CaseScreen id={r.id} />}
       {r.name === "top" && <Top />}
+      {r.name === "market" && <Market />}
       {r.name === "player" && <Player key={r.id} id={r.id} />}
       {r.name === "game" && (() => { const G = GAME_SCREENS[r.id]; return <G key={r.id} />; })()}
       <TabBar />

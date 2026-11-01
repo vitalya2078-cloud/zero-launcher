@@ -175,6 +175,19 @@ const routes: Record<string, Route> = {
     if (!attrs) return { ...cached, found: false };
     return one(sql`select giftsim.nft_attrs_put(${gift}, ${num}, ${sql.json(attrs)}) as r`);
   },
+  // ---------------------------------------------------------------- маркет
+  market: (u, p) => one(sql`select giftsim.market_lots(${u}, ${p.gift ? str(p.gift, "gift", 40) : null},
+    ${p.sort ? str(p.sort, "sort", 12) : "price"}, ${p.offset ? int(p.offset, "offset") : 0}) as r`),
+  market_my: (u) => one(sql`select giftsim.market_my(${u}) as r`),
+  market_list: (u, p) => one(sql`select giftsim.market_list(${u}, ${int(p.id, "id")}, ${int(p.price, "price")}) as r`),
+  market_cancel: (u, p) => one(sql`select giftsim.market_cancel(${u}, ${int(p.lot, "lot")}) as r`),
+  market_buy: async (u, p) => {
+    const r = (await one(sql`select giftsim.market_buy(${u}, ${int(p.lot, "lot")}) as r`)) as Record<string, unknown> | null;
+    const n = r?.notify as SaleNotice | undefined;
+    if (r) delete r.notify; // данные продавца в клиент не отдаём
+    if (n) await notifySale(n);
+    return r;
+  },
   player: (u, p) => {
     const id = str(p.id, "id", 36);
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw new BadParams("id");
@@ -217,6 +230,31 @@ async function fetchNftAttrs(gift: string, num: number): Promise<Record<string, 
     return out.model ? out : null;
   } catch {
     return null;
+  }
+}
+
+type SaleNotice = { seller: number; net: number; name: string; num: number | null; buyer: string };
+
+// Сообщение продавцу от бота: «у тебя купили подарок». Не дольше 3 с — покупка от этого не зависит.
+async function notifySale(n: SaleNotice) {
+  try {
+    const [{ url }] = await sql`select giftsim.setting('app_url') #>> '{}' as url`;
+    const esc = (t: string) => t.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]!);
+    const fmt = (v: number) => new Intl.NumberFormat("ru-RU").format(v);
+    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(3000),
+      body: JSON.stringify({
+        chat_id: n.seller,
+        parse_mode: "HTML",
+        text: `🛒 <b>У тебя купили подарок</b>\n\n${esc(n.name)}${n.num ? ` #${fmt(n.num)}` : ""} — купил(а) ${esc(n.buyer)}\n` +
+          `+${fmt(n.net)} ★ на баланс (комиссия маркета 5%)`,
+        reply_markup: url ? { inline_keyboard: [[{ text: "Открыть маркет", web_app: { url: `${url}#market` } }]] } : undefined,
+      }),
+    });
+  } catch (e) {
+    console.error("notifySale", e);
   }
 }
 

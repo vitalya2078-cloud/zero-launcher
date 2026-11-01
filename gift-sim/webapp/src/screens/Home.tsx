@@ -2,6 +2,7 @@ import { stageBg } from "../components/game-ui";
 import { useEffect, useMemo, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
+import { CaseCover } from "../components/CaseCover";
 import { Ico, KeyIcon, Star } from "../components/icons";
 import { fmt, plural, RARITY, short, timeLeft } from "../format";
 import { go, profile, showToast } from "../state";
@@ -19,18 +20,6 @@ const CATEGORIES: { id: CaseCard["category"] | "all"; label: string; icon?: stri
 ];
 const CAT_ICON = Object.fromEntries(CATEGORIES.map((c) => [c.id, c.icon]));
 
-// иконки тематических кейсов (по названию)
-const THEME_ICON: Record<string, string> = {
-  "Любовь": "theme-love",
-  "Новый год": "theme-newyear",
-  "Мистика": "theme-mystic",
-  "Сладости": "theme-sweets",
-  "Роскошь": "theme-luxury",
-  "Звёзды": "theme-stars",
-  "Животные": "theme-animals",
-  "Космос": "theme-space",
-  "Герои": "theme-heroes",
-};
 
 const SECTION_TITLES: Record<string, string> = {
   special: "Особые",
@@ -160,8 +149,7 @@ function CaseTile({ c }: { c: CaseCard }) {
     >
       <div class="glow" />
       {c.badge && <span class="badge">{c.badge}</span>}
-      {THEME_ICON[c.name] && <Ico name={THEME_ICON[c.name]} size={34} class="theme-ico" />}
-      <div class="art-wrap">{c.cover && <GiftArt gift={c.cover} size={96} />}</div>
+      <div class="art-wrap"><CaseCover name={c.name} category={c.category} cover={c.cover} size={104} /></div>
       <div class="name">{c.name}</div>
       <div class="sub num">
         до {short(c.max_value)} ★ · {c.items_count} призов

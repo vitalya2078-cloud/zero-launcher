@@ -4,6 +4,7 @@ import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
 import { loadBackdrop, NftAction, NftCard, type Backdrop } from "../components/NftCard";
 import { Segmented } from "../components/game-ui";
+import { ListPanel } from "./Market";
 import { CollectionChips, NftTile } from "../components/NftTile";
 import { Ico, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
@@ -185,6 +186,7 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
   }, [item.gift_id]);
 
   const openGame = (id: "upgrade" | "contract") => { onClose(); go({ name: "game", id }); };
+  const [listing, setListing] = useState(false);
   return (
     <Sheet onClose={onClose}>
       <NftCard
@@ -192,11 +194,13 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
         actions={
           <>
             <NftAction icon={<Ico name="fx/coins" size={28} />} label="Продать" disabled={busy} onClick={onSell} />
+            <NftAction icon={<Ico name="cat-deals" size={28} />} label="Маркет" onClick={() => setListing(!listing)} />
             <NftAction icon={<Ico name="games/upgrade" size={28} />} label="Апгрейд" onClick={() => openGame("upgrade")} />
             <NftAction icon={<Ico name="games/contract" size={28} />} label="Контракт" onClick={() => openGame("contract")} />
           </>
         }
       >
+        {listing && <ListPanel id={item.id} value={item.value} onDone={onClose} />}
         <div class="glass chart-box">
           <div class="chart-head">
             <span class="dim">Цена коллекции за неделю</span>

@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 import { profile, route, tab, toast, type Route } from "../state";
 import { fmt } from "../format";
 import { haptic } from "../tg";
-import { Ico, KeyIcon, Star, type TabIcon } from "./icons";
+import { Ico, KeyIcon, Star } from "./icons";
 
 export function Sheet({ onClose, children }: { onClose: () => void; children: ComponentChildren }) {
   useEffect(() => {
@@ -46,11 +46,12 @@ export function TopBar() {
   );
 }
 
-const TABS: { route: Route; label: string; icon: TabIcon }[] = [
-  { route: { name: "home" }, label: "Главная", icon: "home" },
-  { route: { name: "games" }, label: "Игры", icon: "games" },
-  { route: { name: "inventory" }, label: "Инвентарь", icon: "inventory" },
-  { route: { name: "profile" }, label: "Профиль", icon: "profile" },
+const TABS: { route: Route; label: string; icon: string }[] = [
+  { route: { name: "home" }, label: "Главная", icon: "tab-home" },
+  { route: { name: "games" }, label: "Игры", icon: "tab-games" },
+  { route: { name: "market" }, label: "Маркет", icon: "fx/coins" },
+  { route: { name: "inventory" }, label: "Инвентарь", icon: "tab-inventory" },
+  { route: { name: "profile" }, label: "Профиль", icon: "tab-profile" },
 ];
 
 export function TabBar() {
@@ -66,7 +67,7 @@ export function TabBar() {
             tab(t.route);
           }}
         >
-          <Ico name={`tab-${t.icon}`} size={30} />
+          <Ico name={t.icon} size={30} />
           {t.label}
         </button>
       ))}
