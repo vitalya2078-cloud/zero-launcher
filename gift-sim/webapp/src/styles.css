@@ -1348,3 +1348,19 @@ h1 {
 .battle-drop img { border-radius: 8px; }
 .battle-col .total { margin-top: auto; font-weight: 800; }
 .crown { position: absolute; top: -10px; right: -4px; font-size: 20px; }
+
+/* 3D-иконки игр (сгенерированы в Figma): края растворяются в стеклянной карточке */
+.game-card { min-height: 0; justify-content: flex-start; gap: 6px; padding-top: 10px; }
+.game-art {
+  width: 100%;
+  max-width: 132px;
+  height: auto;
+  aspect-ratio: 1;
+  align-self: center;
+  margin: -4px 0 -6px;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 71%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 71%);
+  transition: transform 0.2s;
+}
+.game-card:active .game-art { transform: scale(0.95); }
+.game-card .soon { z-index: 2; }
