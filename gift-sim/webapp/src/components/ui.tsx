@@ -54,7 +54,8 @@ const TABS: { route: Route; label: string; icon: keyof typeof TabIcons }[] = [
 ];
 
 export function TabBar() {
-  const current = route.value.name === "case" ? "home" : route.value.name;
+  const r = route.value;
+  const current = r.name === "case" ? "home" : r.name === "game" ? "games" : r.name;
   return (
     <nav class="tabbar">
       {TABS.map((t) => {

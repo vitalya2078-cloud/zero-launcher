@@ -12,7 +12,10 @@ export type Route =
   | { name: "games" }
   | { name: "inventory" }
   | { name: "profile" }
-  | { name: "case"; id: string };
+  | { name: "case"; id: string }
+  | { name: "game"; id: GameId };
+
+export type GameId = "crash" | "upgrade" | "contract" | "mines" | "wheel" | "plinko" | "coinflip" | "jackpot" | "battles";
 
 export const route = signal<Route>({ name: "home" });
 export const history: Route[] = [];

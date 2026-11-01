@@ -8,6 +8,13 @@ import { Games } from "./screens/Games";
 import { Home } from "./screens/Home";
 import { Inventory } from "./screens/Inventory";
 import { Profile } from "./screens/Profile";
+import { Crash } from "./screens/games/Crash";
+import { Contract, Upgrade } from "./screens/games/GiftGames";
+import { Coinflip, Plinko, Wheel } from "./screens/games/Instant";
+import { Mines } from "./screens/games/Mines";
+import { Battles, Jackpot } from "./screens/games/PvP";
+
+const GAME_SCREENS = { crash: Crash, upgrade: Upgrade, contract: Contract, mines: Mines, wheel: Wheel, plinko: Plinko, coinflip: Coinflip, jackpot: Jackpot, battles: Battles };
 import { back, profile, route, showToast } from "./state";
 import { initTelegram, setBack, tg } from "./tg";
 import type { Profile as P } from "./types";
@@ -32,7 +39,7 @@ function App() {
 
   const r = route.value;
   useEffect(() => {
-    setBack(r.name === "case" ? back : null);
+    setBack(r.name === "case" || r.name === "game" ? back : null);
   }, [r.name]);
 
   if (error) {
@@ -59,6 +66,7 @@ function App() {
       {r.name === "inventory" && <Inventory />}
       {r.name === "profile" && <Profile />}
       {r.name === "case" && <CaseScreen id={r.id} />}
+      {r.name === "game" && (() => { const G = GAME_SCREENS[r.id]; return <G key={r.id} />; })()}
       <TabBar />
       <Toast />
     </div>

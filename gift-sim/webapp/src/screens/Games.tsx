@@ -1,17 +1,16 @@
+import { go, type GameId } from "../state";
 import { haptic } from "../tg";
-import { showToast } from "../state";
 
-// Витрина игр. Логика всех игр уже работает на сервере, экраны подключаются во второй части интерфейса.
-const GAMES = [
-  { emoji: "📈", name: "Краш", desc: "Забери ставку до взрыва" },
-  { emoji: "⬆️", name: "Апгрейд", desc: "Подарок → подарок дороже" },
-  { emoji: "📜", name: "Контракт", desc: "3–10 подарков → один" },
-  { emoji: "💣", name: "Мины", desc: "Открывай клетки, не взорвись" },
-  { emoji: "🎡", name: "Колесо", desc: "Три уровня риска" },
-  { emoji: "🔻", name: "Плинко", desc: "Шарик и множители" },
-  { emoji: "🪙", name: "Монетка", desc: "Орёл или решка, ×1.92" },
-  { emoji: "🏆", name: "Джекпот", desc: "Банк подарков на всех" },
-  { emoji: "⚔️", name: "Битвы кейсов", desc: "Кто выбьет дороже" },
+const GAMES: { id: GameId; emoji: string; name: string; desc: string; tag?: string }[] = [
+  { id: "crash", emoji: "📈", name: "Краш", desc: "Забери ставку до взрыва", tag: "онлайн" },
+  { id: "battles", emoji: "⚔️", name: "Битвы кейсов", desc: "Кто выбьет дороже", tag: "PvP" },
+  { id: "jackpot", emoji: "🏆", name: "Джекпот", desc: "Банк подарков на всех", tag: "PvP" },
+  { id: "upgrade", emoji: "⬆️", name: "Апгрейд", desc: "Подарок → подарок дороже" },
+  { id: "contract", emoji: "📜", name: "Контракт", desc: "3–10 подарков → один" },
+  { id: "mines", emoji: "💣", name: "Мины", desc: "Открывай клетки, не взорвись" },
+  { id: "wheel", emoji: "🎡", name: "Колесо", desc: "Три уровня риска" },
+  { id: "plinko", emoji: "🔻", name: "Плинко", desc: "Шарик и множители до ×164" },
+  { id: "coinflip", emoji: "🪙", name: "Монетка", desc: "50 на 50, выигрыш ×1,92" },
 ];
 
 export function Games() {
@@ -24,10 +23,10 @@ export function Games() {
             class="game-card glass"
             onClick={() => {
               haptic.tap();
-              showToast("Экран игры появится в следующем обновлении");
+              go({ name: "game", id: g.id });
             }}
           >
-            <span class="soon">скоро</span>
+            {g.tag && <span class="soon">{g.tag}</span>}
             <div class="emoji">{g.emoji}</div>
             <div>
               <b>{g.name}</b>
