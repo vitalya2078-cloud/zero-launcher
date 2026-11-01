@@ -2,7 +2,7 @@ import { stageBg } from "../components/game-ui";
 import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
-import { GiftLottie } from "../components/Lottie";
+import { NftCard } from "../components/NftCard";
 import { KeyIcon, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
 import { chance, fmt, RARITY, short, timeLeft } from "../format";
@@ -155,6 +155,38 @@ export function CaseScreen({ id }: { id: string }) {
     setResult(null);
   }
 
+  // кнопки окна выигрыша (общие для NFT и звёзд)
+  const winButtons = result && (
+    <>
+      {result.inventory_id ? (
+        <div class="row">
+          <button class="btn secondary" onClick={sell}>
+            Продать · {short(result.gift.value)} ★
+          </button>
+          <button class="btn" onClick={() => setResult(null)}>
+            Забрать
+          </button>
+        </div>
+      ) : (
+        <button class="btn" onClick={() => setResult(null)}>
+          Забрать
+        </button>
+      )}
+      {canAfford && data.pay_mode !== "free" && (
+        <button
+          class="btn secondary"
+          style={{ marginTop: 10 }}
+          onClick={() => {
+            setResult(null);
+            setTimeout(open, 250);
+          }}
+        >
+          Ещё раз
+        </button>
+      )}
+    </>
+  );
+
   return (
     <>
       <div class="case-hero glass stage-bg" style={{ "--rc": rc, ...stageBg("case") }}>
@@ -228,10 +260,20 @@ export function CaseScreen({ id }: { id: string }) {
 
       {result && (
         <Sheet onClose={() => setResult(null)}>
+          {result.gift.kind === "nft" ? (
+            <NftCard gift={result.gift}>
+              {result.price > 0 && (
+                <div class={`delta center ${result.gift.value >= result.price ? "up" : "down"}`} style={{ marginBottom: 12 }}>
+                  {result.gift.value >= result.price ? "▲" : "▼"} ×{(result.gift.value / result.price).toFixed(2)} к цене кейса
+                </div>
+              )}
+            {winButtons}
+            </NftCard>
+          ) : (
           <div class="win" style={{ "--rc": RARITY[result.gift.rarity].color }}>
             <div class="rays" />
             <img class="win-sparkle" src="./fx/sparkle.webp" alt="" />
-            <div class="win-art">{result.gift.kind === "nft" ? <GiftLottie gift={result.gift} size={200} /> : <GiftArt gift={result.gift} size={180} />}</div>
+            <div class="win-art"><GiftArt gift={result.gift} size={180} /></div>
             <div class="rarity">{RARITY[result.gift.rarity].name}</div>
             <h2>{result.gift.kind === "stars" ? `${fmt(result.gift.value)} звёзд` : result.gift.name}</h2>
             <div class="value num">
@@ -248,33 +290,9 @@ export function CaseScreen({ id }: { id: string }) {
                 </>
               )}
             </div>
-            {result.inventory_id ? (
-              <div class="row">
-                <button class="btn secondary" onClick={sell}>
-                  Продать · {short(result.gift.value)} ★
-                </button>
-                <button class="btn" onClick={() => setResult(null)}>
-                  Забрать
-                </button>
-              </div>
-            ) : (
-              <button class="btn" onClick={() => setResult(null)}>
-                Забрать
-              </button>
-            )}
-            {canAfford && data.pay_mode !== "free" && (
-              <button
-                class="btn secondary"
-                style={{ marginTop: 10 }}
-                onClick={() => {
-                  setResult(null);
-                  setTimeout(open, 250);
-                }}
-              >
-                Ещё раз
-              </button>
-            )}
+            {winButtons}
           </div>
+          )}
         </Sheet>
       )}
     </>

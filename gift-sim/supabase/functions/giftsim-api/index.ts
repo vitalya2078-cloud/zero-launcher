@@ -125,6 +125,12 @@ const routes: Record<string, Route> = {
   crash_state: (u) => one(sql`select giftsim.crash_game_state(${u}) as r`),
   crash_bet: (u, p) => one(sql`select giftsim.crash_game_bet(${u}, ${int(p.bet, "bet")}, ${optNum(p.auto_cashout, "auto_cashout")}) as r`),
   crash_cashout: (u) => one(sql`select giftsim.crash_game_cashout(${u}) as r`),
+  // держим запрос до взрыва (не дольше 25 с), чтобы клиент узнал о нём сразу
+  crash_wait: async (u) => {
+    const [{ ms }] = await sql`select giftsim.crash_game_wait_ms() as ms`;
+    if (Number(ms) > 0) await new Promise((r) => setTimeout(r, Math.min(Number(ms) + 15, 25_000)));
+    return one(sql`select giftsim.crash_game_state(${u}) as r`);
+  },
   solo_crash_start: (u, p) => one(sql`select giftsim.crash_start(${u}, ${int(p.bet, "bet")}, ${optNum(p.auto_cashout, "auto_cashout")}) as r`),
   solo_crash_cashout: (u, p) => one(sql`select giftsim.crash_cashout(${u}, ${int(p.round_id, "round_id")}) as r`),
   solo_crash_status: (u, p) => one(sql`select giftsim.crash_status(${u}, ${int(p.round_id, "round_id")}) as r`),
@@ -152,6 +158,18 @@ const routes: Record<string, Route> = {
     if (!["won", "level", "inventory"].includes(kind)) throw new BadParams("kind");
     return one(sql`select giftsim.leaderboard(${kind}, ${u}) as r`);
   },
+  // модель / фон / узор конкретного номера: кэш в базе, иначе — страница t.me/nft/<slug>-<номер>
+  nft_info: async (_u, p) => {
+    const gift = str(p.gift, "gift", 40);
+    if (!/^[a-z0-9]+$/.test(gift)) throw new BadParams("gift");
+    const num = int(p.num, "num");
+    const cached = (await one(sql`select giftsim.nft_attrs_get(${gift}, ${num}) as r`)) as { cached: boolean } | null;
+    if (!cached) throw new BadParams("num");
+    if (cached.cached) return cached;
+    const attrs = await fetchNftAttrs(gift, num);
+    if (!attrs) return { ...cached, found: false };
+    return one(sql`select giftsim.nft_attrs_put(${gift}, ${num}, ${sql.json(attrs)}) as r`);
+  },
   player: (u, p) => {
     const id = str(p.id, "id", 36);
     if (!/^[0-9a-f-]{36}$/i.test(id)) throw new BadParams("id");
@@ -167,6 +185,35 @@ const routes: Record<string, Route> = {
   admin_set_setting: (u, p) => one(sql`select giftsim.admin_set_setting(${u}, ${str(p.key, "key")}, ${sql.json(p.value as object)}) as r`),
   admin_upsert_task: (u, p) => one(sql`select giftsim.admin_upsert_task(${u}, ${sql.json(p.task as object)}) as r`),
 };
+
+const decode = (t: string) =>
+  t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n))).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+    .trim();
+
+// Атрибуты номера со страницы t.me/nft/<slug>-<номер>: строки «Model / Backdrop / Symbol» с процентом редкости.
+// null — страница без таблицы (номера нет или t.me не ответил как надо): такое не кэшируем.
+async function fetchNftAttrs(gift: string, num: number): Promise<Record<string, unknown> | null> {
+  try {
+    const res = await fetch(`https://t.me/nft/${gift}-${num}`, {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; FortumDrops/1.0)" },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const out: Record<string, unknown> = {};
+    for (const [key, field] of [["Model", "model"], ["Backdrop", "backdrop"], ["Symbol", "symbol"]]) {
+      const m = html.match(new RegExp(`<th>${key}</th><td>([^<]*?)\\s*<mark>([\\d.,]+)%</mark>`));
+      if (m) {
+        out[field] = decode(m[1]);
+        out[`${field}_rarity`] = Number(m[2].replace(",", "."));
+      }
+    }
+    return out.model ? out : null;
+  } catch {
+    return null;
+  }
+}
 
 // Подписан ли игрок на канал (бот должен быть администратором канала).
 async function isSubscribed(chat: string, userId: number): Promise<boolean> {

@@ -8,6 +8,8 @@ export type Gift = {
   value: number;
   image_url: string | null;
   animation_url: string | null;
+  num?: number | null; // номер экземпляра NFT (свои модель, узор и фон)
+  inv_id?: number;
 };
 
 export type CaseItem = Gift & { chance: number };

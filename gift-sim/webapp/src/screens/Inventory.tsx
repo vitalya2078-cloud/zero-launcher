@@ -2,11 +2,11 @@ import { stageBg } from "../components/game-ui";
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
-import { GiftLottie } from "../components/Lottie";
+import { NftAction, NftCard } from "../components/NftCard";
 import { Ico, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
 import { fmt, plural, RARITY, short } from "../format";
-import { inventory, refreshInventory, setBalance, showToast, tab } from "../state";
+import { go, inventory, refreshInventory, setBalance, showToast, tab } from "../state";
 import { haptic } from "../tg";
 import type { InventoryItem } from "../types";
 
@@ -148,34 +148,35 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
     api<History>("gift_history", { id: item.gift_id, days: 7 }).then(setHist).catch(() => {});
   }, [item.gift_id]);
 
+  const openGame = (id: "upgrade" | "contract") => { onClose(); go({ name: "game", id }); };
   return (
     <Sheet onClose={onClose}>
-      <div class="win" style={{ "--rc": RARITY[item.rarity].color }}>
-        <div class="rays" />
-        <div class="win-art"><GiftLottie gift={{ ...item, id: item.gift_id }} size={190} /></div>
-        <div class="rarity">{RARITY[item.rarity].name}</div>
-        <h2>{item.name}</h2>
-        <div class="value num" style={{ marginBottom: 8 }}>
-          <Star size={20} /> {fmt(item.value)}
-          {hist?.change_24h != null && (
-            <span class={`delta ${hist.change_24h >= 0 ? "up" : "down"}`} style={{ fontSize: 13 }}>
-              {hist.change_24h >= 0 ? "▲" : "▼"} {Math.abs(hist.change_24h).toFixed(1)}% за сутки
-            </span>
-          )}
+      <NftCard
+        gift={{ ...item, id: item.gift_id }}
+        actions={
+          <>
+            <NftAction icon={<Ico name="fx/coins" size={28} />} label="Продать" disabled={busy} onClick={onSell} />
+            <NftAction icon={<Ico name="games/upgrade" size={28} />} label="Апгрейд" onClick={() => openGame("upgrade")} />
+            <NftAction icon={<Ico name="games/contract" size={28} />} label="Контракт" onClick={() => openGame("contract")} />
+          </>
+        }
+      >
+        <div class="glass chart-box">
+          <div class="chart-head">
+            <span class="dim">Цена коллекции за неделю</span>
+            {hist?.change_24h != null && (
+              <span class={`delta ${hist.change_24h >= 0 ? "up" : "down"}`}>
+                {hist.change_24h >= 0 ? "▲" : "▼"} {Math.abs(hist.change_24h).toFixed(1)}% за сутки
+              </span>
+            )}
+          </div>
+          <PriceChart points={hist?.points ?? []} />
+          <div class="dim num" style={{ fontSize: 12, marginTop: 6 }}>При получении: {fmt(item.value_at_drop)} ★</div>
         </div>
-        <div class="dim num" style={{ fontSize: 12, marginBottom: 10 }}>
-          Был при получении: {fmt(item.value_at_drop)} ★
-        </div>
-      </div>
-      <div class="glass" style={{ padding: 12, marginBottom: 14 }}>
-        <div class="dim" style={{ fontSize: 12, marginBottom: 6 }}>
-          Цена за неделю
-        </div>
-        <PriceChart points={hist?.points ?? []} />
-      </div>
-      <button class="btn secondary" disabled={busy} onClick={onSell}>
-        Продать за {fmt(item.value)} ★
-      </button>
+        <button class="btn secondary" disabled={busy} onClick={onSell}>
+          Продать за {fmt(item.value)} ★
+        </button>
+      </NftCard>
     </Sheet>
   );
 }

@@ -6,7 +6,9 @@ import { Ico, Star } from "../components/icons";
 import { ago, fmt, plural, RARITY, short, SOURCE } from "../format";
 import { go, showToast } from "../state";
 import { haptic } from "../tg";
-import type { Leaderboard, LbKind, PlayerProfile } from "../types";
+import { NftCard } from "../components/NftCard";
+import { Sheet } from "../components/ui";
+import type { Gift, Leaderboard, LbKind, PlayerProfile } from "../types";
 
 // Аватар игрока: фото из Telegram или первая буква имени.
 function Avatar({ url, name, size = 44 }: { url: string | null; name: string; size?: number }) {
@@ -104,6 +106,7 @@ export function Top() {
 
 export function Player({ id }: { id: string }) {
   const [p, setP] = useState<PlayerProfile | null | undefined>(undefined);
+  const [open, setOpen] = useState<Gift | null>(null);
 
   useEffect(() => {
     api<PlayerProfile | null>("player", { id }).then(setP).catch((e) => {
@@ -170,11 +173,12 @@ export function Player({ id }: { id: string }) {
       ) : (
         <div class="gift-grid">
           {p.collection.map((g) => (
-            <div class="gift-card glass" style={{ "--rc": RARITY[g.rarity].color }} key={g.inv_id}>
+            <button class="gift-card glass" style={{ "--rc": RARITY[g.rarity].color }} key={g.inv_id}
+              onClick={() => { haptic.tap(); setOpen(g); }}>
               <GiftArt gift={g} size={56} />
               <div class="g-name">{g.name}</div>
               <div class="g-val num"><Star /> {short(g.value)}</div>
-            </div>
+            </button>
           ))}
         </div>
       )}
@@ -191,7 +195,8 @@ export function Player({ id }: { id: string }) {
         <div class="empty glass" style={{ padding: "28px 20px" }}>Выигрышей пока нет</div>
       ) : (
         p.recent.map((w) => (
-          <div class="win-row glass" style={{ "--rc": RARITY[w.rarity].color }}>
+          <div class={`win-row glass ${w.kind === "nft" ? "link" : ""}`} style={{ "--rc": RARITY[w.rarity].color }}
+            onClick={w.kind === "nft" ? () => { haptic.tap(); setOpen(w); } : undefined}>
             <GiftArt gift={w} size={40} />
             <div class="t-body">
               <b>{w.name}</b>
@@ -200,6 +205,14 @@ export function Player({ id }: { id: string }) {
             <b class="num"><Star /> {short(w.value)}</b>
           </div>
         ))
+      )}
+
+      {open && (
+        <Sheet onClose={() => setOpen(null)}>
+          <NftCard gift={open}>
+            <button class="btn secondary" onClick={() => setOpen(null)}>Закрыть</button>
+          </NftCard>
+        </Sheet>
       )}
     </>
   );

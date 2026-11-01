@@ -5,10 +5,7 @@ import { fmt, short } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
 
-// спрайты ракеты и взрыва рисуются прямо на canvas
-const sprite = (src: string) => { const i = new Image(); i.src = src; return i; };
-const ROCKET = sprite("./fx/rocket.webp");
-const EXPLOSION = sprite("./fx/explosion.webp");
+import { CrashScene } from "./crashScene";
 
 type Bet = { user: string; photo_url: string | null; bet: number; status: "active" | "cashed" | "lost"; cashout_at: number | null; payout: number; me: boolean };
 type State = {
@@ -25,7 +22,8 @@ type State = {
 };
 
 // Общий краш: один раунд на всех. Сервер хранит точку взрыва в секрете; клиент рисует множитель
-// по серверному времени (e^(rate·t)) и опрашивает состояние, чтобы узнать о взрыве и чужих выводах.
+// по серверному времени (e^(rate·t)). О взрыве узнаём через crash_wait: сервер держит запрос и отвечает
+// ровно в момент взрыва. Обычный опрос остаётся для чужих ставок и выводов.
 export function Crash() {
   const [s, setS] = useState<State | null>(null);
   const [bet, setBet] = useState(() => Number(localStorage.getItem("bet")) || 100);
@@ -33,47 +31,92 @@ export function Crash() {
   const [busy, setBusy] = useState(false);
   const [, frame] = useState(0);
   const offset = useRef(0); // server_time − Date.now()
+  const bestRtt = useRef(Infinity);
+  const lastSeen = useRef({ round: 0, time: 0 }); // самый свежий применённый ответ
+  const waiting = useRef(0); // раунд, для которого уже висит crash_wait
+  const alive = useRef(true);
   const lastPhase = useRef<string>("");
   const prevMine = useRef<string | undefined>(undefined);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const scene = useRef<CrashScene>();
 
   const now = () => Date.now() + offset.current;
 
+  // Применяем ответ сервера. Устаревшие (пришли позже более свежего) отбрасываем,
+  // иначе старый «running» мог бы «оживить» уже взорвавшийся раунд.
+  function apply(st: State, sentAt: number) {
+    const recv = Date.now();
+    const srv = new Date(st.server_time).getTime();
+    if (st.round_id < lastSeen.current.round || (st.round_id === lastSeen.current.round && srv < lastSeen.current.time)) return;
+    lastSeen.current = { round: st.round_id, time: srv };
+    // часы сервера: берём замер с самым коротким временем ответа, сдвиг — на половину пути
+    const rtt = recv - sentAt;
+    if (rtt <= bestRtt.current * 1.3 || offset.current === 0) {
+      bestRtt.current = Math.min(bestRtt.current, rtt);
+      offset.current = srv - (sentAt + rtt / 2);
+    }
+    react(st);
+    if (st.phase === "running") waitCrash(st.round_id);
+  }
+
+  // держим открытый запрос до взрыва
+  async function waitCrash(round: number) {
+    if (waiting.current === round) return;
+    waiting.current = round;
+    while (alive.current) {
+      const sent = Date.now();
+      try {
+        const st = await api<State>("crash_wait");
+        apply(st, sent);
+        if (st.round_id !== round || st.phase !== "running") break;
+      } catch {
+        await new Promise((r) => setTimeout(r, 800));
+      }
+    }
+  }
+
   async function load() {
+    const sent = Date.now();
     try {
-      const st = await api<State>("crash_state");
-      offset.current = new Date(st.server_time).getTime() - Date.now();
-      if (lastPhase.current === "running" && st.phase === "crashed") {
-        haptic.heavy();
-        const mine = st.bets.find((b) => b.me);
-        if (mine?.status === "lost") haptic.error();
-      }
-      const mineStatus = st.bets.find((b) => b.me)?.status;
-      if (mineStatus === "cashed" && prevMine.current === "active") {
-        haptic.success(); // сработал автовывод
-        refreshProfile().catch(() => {});
-      }
-      prevMine.current = mineStatus;
-      lastPhase.current = st.phase;
-      setS(st);
-      setBalance(st.balance);
+      apply(await api<State>("crash_state"), sent);
     } catch (e) {
       showToast(errorText(e), "err");
     }
   }
 
-  // опрос: чаще во время полёта
+  function react(st: State) {
+    if (lastPhase.current === "running" && st.phase === "crashed") {
+      haptic.heavy();
+      const mine = st.bets.find((b) => b.me);
+      if (mine?.status === "lost") haptic.error();
+    }
+    const mineStatus = st.bets.find((b) => b.me)?.status;
+    if (mineStatus === "cashed" && prevMine.current === "active") {
+      haptic.success(); // сработал автовывод
+      refreshProfile().catch(() => {});
+    }
+    prevMine.current = mineStatus;
+    lastPhase.current = st.phase;
+    setS(st);
+    setBalance(st.balance);
+  }
+
+  // обычный опрос — для чужих ставок, выводов и нового раунда
   useEffect(() => {
+    alive.current = true;
     load();
     let t: number;
     const loop = () => {
       t = window.setTimeout(async () => {
         await load();
         loop();
-      }, lastPhase.current === "running" ? 600 : 1200);
+      }, 1000);
     };
     loop();
-    return () => clearTimeout(t);
+    return () => {
+      alive.current = false;
+      clearTimeout(t);
+    };
   }, []);
 
   // анимация 60 fps
@@ -95,63 +138,20 @@ export function Crash() {
   const nextIn = s?.next_round_at ? Math.max(0, (new Date(s.next_round_at).getTime() - now()) / 1000) : 0;
   const me = s?.bets.find((b) => b.me);
 
-  // график
+  // сцена: кривая, ракета, частицы
   useEffect(() => {
     const c = canvas.current;
     if (!c || !s) return;
-    const dpr = window.devicePixelRatio || 1;
-    const W = c.clientWidth, H = c.clientHeight;
-    if (c.width !== W * dpr) { c.width = W * dpr; c.height = H * dpr; }
-    const g = c.getContext("2d")!;
-    g.setTransform(dpr, 0, 0, dpr, 0, 0);
-    g.clearRect(0, 0, W, H);
-    if (s.phase === "betting") return;
-    const tEnd = s.phase === "crashed" ? Math.log(Math.max(1, mult)) / s.rate : t;
-    const tMax = Math.max(8, tEnd * 1.15), mMax = Math.max(2, mult * 1.15);
-    const x = (tt: number) => 16 + (tt / tMax) * (W - 32);
-    const y = (m: number) => H - 16 - ((m - 1) / (mMax - 1)) * (H - 40);
-    const color = s.phase === "crashed" ? "#ff5a6e" : "#3d9bff";
-    const grad = g.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, s.phase === "crashed" ? "rgba(255,90,110,.35)" : "rgba(61,155,255,.35)");
-    grad.addColorStop(1, "rgba(0,0,0,0)");
-    g.beginPath();
-    g.moveTo(x(0), y(1));
-    for (let i = 1; i <= 60; i++) {
-      const tt = (tEnd * i) / 60;
-      g.lineTo(x(tt), y(Math.exp(s.rate * tt)));
-    }
-    g.lineWidth = 3;
-    g.strokeStyle = color;
-    g.stroke();
-    g.lineTo(x(tEnd), H - 16);
-    g.lineTo(x(0), H - 16);
-    g.fillStyle = grad;
-    g.fill();
-
-    // кончик кривой: ракета летит по касательной, при взрыве — вспышка
-    const tx = x(tEnd), ty = y(Math.exp(s.rate * tEnd));
-    if (s.phase === "crashed") {
-      if (EXPLOSION.complete && EXPLOSION.naturalWidth) g.drawImage(EXPLOSION, tx - 40, ty - 40, 80, 80);
-    } else if (ROCKET.complete && ROCKET.naturalWidth) {
-      const dt = Math.max(tEnd, 0.05) * 0.02;
-      const px = x(tEnd - dt), py = y(Math.exp(s.rate * (tEnd - dt)));
-      const ang = Math.atan2(ty - py, tx - px); // направление полёта на экране
-      const sz = 46, ratio = ROCKET.naturalHeight / ROCKET.naturalWidth;
-      g.save();
-      g.translate(tx, ty);
-      g.rotate(ang + Math.PI / 4); // на картинке нос смотрит вверх-вправо (−45°)
-      g.drawImage(ROCKET, -sz * 0.62, -sz * ratio * 0.38, sz, sz * ratio);
-      g.restore();
-    }
+    scene.current ??= new CrashScene();
+    scene.current.draw(c, { phase: s.phase, rate: Number(s.rate), t, mult, roundId: s.round_id });
   });
 
   async function placeBet() {
     setBusy(true);
+    const sent = Date.now();
     try {
       const a = auto.trim() ? Number(auto.replace(",", ".")) : null;
-      const st = await api<State>("crash_bet", { bet, auto_cashout: a });
-      setS(st);
-      setBalance(st.balance);
+      apply(await api<State>("crash_bet", { bet, auto_cashout: a }), sent);
       haptic.medium();
     } catch (e) {
       haptic.error();
@@ -163,10 +163,11 @@ export function Crash() {
 
   async function cashout() {
     setBusy(true);
+    const sent = Date.now();
     try {
       const st = await api<State & { cashout_at: number; payout: number }>("crash_cashout");
-      setS(st);
-      setBalance(st.balance);
+      prevMine.current = "cashed"; // вывод ручной — не путать с автовыводом в react()
+      apply(st, sent);
       haptic.success();
       showToast(`Забрали ×${st.cashout_at} — +${fmt(st.payout)} ★`);
       refreshProfile().catch(() => {});

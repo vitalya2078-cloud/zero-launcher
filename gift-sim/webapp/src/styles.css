@@ -1478,3 +1478,50 @@ img.star.em { width: 1.15em !important; height: 1.15em !important; }
 .best-drop > b, .win-row > b { display: inline-flex; align-items: center; gap: 4px; flex: none; font-weight: 800; }
 .best-drop img, .win-row img:not(.star) { border-radius: 12px; }
 .tg-star { object-fit: contain; filter: drop-shadow(0 4px 10px rgba(255, 170, 40, 0.35)); border-radius: 0 !important; }
+
+/* ---------------------------------------------------------------- окно NFT-подарка (как в Telegram) */
+
+.sheet:has(.nft-card) { padding-top: 0; }
+.sheet:has(.nft-card) .grip { position: absolute; top: 8px; left: 50%; margin: 0 0 0 -20px; z-index: 3; background: rgba(255, 255, 255, 0.45); }
+.nft-card { position: relative; }
+.nft-hero {
+  position: relative;
+  margin: 0 -18px;
+  padding: 6px 16px 16px;
+  border-radius: 28px 28px 0 0;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.4s;
+}
+.nft-anim { display: flex; justify-content: center; margin: -6px auto -30px; }
+/* края квадратной анимации растворяются в фоне шапки */
+.nft-anim .lottie { -webkit-mask-image: radial-gradient(circle at 50% 46%, #000 48%, transparent 70%); mask-image: radial-gradient(circle at 50% 46%, #000 48%, transparent 70%); }
+.nft-anim .lottie img { border-radius: 0 !important; }
+.nft-title { position: relative; margin: 0; font-size: 24px; font-weight: 800; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35); }
+.nft-title .num { font-weight: 700; color: rgba(255, 255, 255, 0.72); }
+.nft-model { position: relative; min-height: 20px; margin-top: 4px; font-size: 15px; color: rgba(255, 255, 255, 0.75); }
+.nft-actions { position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; margin-top: 16px; }
+.nft-action {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 10px 6px 9px; border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16); border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff; font-size: 14px; font-weight: 700;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.nft-action:active { transform: scale(0.96); }
+.nft-action:disabled { opacity: 0.5; }
+.nft-action .ico { width: 28px; height: 28px; }
+
+.nft-table { margin: 14px 0; border: 1px solid var(--stroke); border-radius: 16px; overflow: hidden; background: rgba(255, 255, 255, 0.03); }
+.nft-row { display: grid; grid-template-columns: 112px 1fr; min-height: 48px; }
+.nft-row + .nft-row { border-top: 1px solid var(--stroke); }
+.nft-k { display: flex; align-items: center; padding: 0 14px; font-weight: 700; font-size: 15px; border-right: 1px solid var(--stroke); background: rgba(255, 255, 255, 0.03); }
+.nft-v { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 8px 14px; font-size: 15px; min-width: 0; }
+.nft-v mark { padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #6fb6ff; background: rgba(61, 155, 255, 0.16); }
+.nft-v .star { width: 18px; height: 18px; }
+.skeleton-line { display: inline-block; width: 60%; height: 14px; border-radius: 7px; background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.12), rgba(255,255,255,.05)); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+.nft-card .chart-box { padding: 12px; margin-bottom: 14px; }
+.win-row.link { cursor: pointer; }
+.win-row.link:active { transform: scale(0.98); }
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
+.delta.center { display: block; text-align: center; font-weight: 700; font-size: 14px; }

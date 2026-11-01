@@ -5,7 +5,7 @@ import { fmt, RARITY, short } from "../format";
 import { haptic } from "../tg";
 import type { Gift, InventoryItem } from "../types";
 import { GiftArt } from "./GiftArt";
-import { GiftLottie } from "./Lottie";
+import { NftCard } from "./NftCard";
 import { Star } from "./icons";
 import { Sheet } from "./ui";
 
@@ -152,12 +152,22 @@ export function ItemPicker({ title, max, min = 1, exclude = [], onDone, onClose,
 
 // Окно с выигранным подарком.
 export function PrizeSheet({ gift, title, note, onClose }: { gift: Gift; title?: string; note?: string; onClose: () => void }) {
+  if (gift.kind === "nft") {
+    return (
+      <Sheet onClose={onClose}>
+        <NftCard gift={gift}>
+          {note && <div class="dim" style={{ textAlign: "center", marginBottom: 12, fontSize: 13 }}>{note}</div>}
+          <button class="btn" onClick={onClose}>Забрать</button>
+        </NftCard>
+      </Sheet>
+    );
+  }
   return (
     <Sheet onClose={onClose}>
       <div class="win" style={{ "--rc": RARITY[gift.rarity].color }}>
         <div class="rays" />
         <img class="win-sparkle" src="./fx/sparkle.webp" alt="" />
-        <div class="win-art">{gift.kind === "nft" ? <GiftLottie gift={gift} size={200} /> : <GiftArt gift={gift} size={180} />}</div>
+        <div class="win-art"><GiftArt gift={gift} size={180} /></div>
         <div class="rarity">{RARITY[gift.rarity].name}</div>
         <h2>{title ?? gift.name}</h2>
         <div class="value num"><Star size={20} /> {fmt(gift.value)}</div>
