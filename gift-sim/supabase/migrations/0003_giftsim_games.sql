@@ -7,7 +7,11 @@ alter table giftsim.transactions drop constraint transactions_reason_check;
 alter table giftsim.transactions add constraint transactions_reason_check check (reason in (
     'start', 'daily', 'case_open', 'item_sell', 'crash_bet', 'crash_win', 'admin',
     'referral_bonus', 'referral_reward', 'referral_commission', 'level_reward', 'task_reward', 'rescue',
-    'game_bet', 'game_win', 'battle_join', 'battle_refund'));
+    'game_bet', 'game_win', 'battle_join', 'battle_refund', 'prize_stars'));
+
+-- в кейсах кроме NFT-подарков бывают призы звёздами и реферальные ключи
+alter table giftsim.gifts drop constraint gifts_kind_check;
+alter table giftsim.gifts add constraint gifts_kind_check check (kind in ('regular', 'nft', 'stars', 'key'));
 
 alter table giftsim.inventory drop constraint inventory_status_check;
 alter table giftsim.inventory add constraint inventory_status_check
@@ -373,6 +377,25 @@ language sql set search_path = giftsim, pg_temp as $$
     returning id
 $$;
 
+-- Выдача приза из кейса/битвы: NFT — в инвентарь, звёзды — на баланс, ключ — в реферальные ключи.
+create function giftsim._grant_prize(p_user bigint, p_gift text, p_source text, p_ref text) returns jsonb
+language plpgsql set search_path = giftsim, pg_temp as $$
+declare
+    v_kind  text;
+    v_value bigint;
+begin
+    select kind, price_stars into v_kind, v_value from giftsim.gifts where id = p_gift;
+    if v_kind = 'stars' then
+        perform giftsim._move(p_user, v_value, 'prize_stars', p_source || ':' || p_ref);
+        return jsonb_build_object('stars', v_value);
+    elsif v_kind = 'key' then
+        update giftsim.users set referral_keys = referral_keys + 1 where tg_id = p_user;
+        return jsonb_build_object('keys', 1);
+    end if;
+    return jsonb_build_object('inventory_id', giftsim._give_gift(p_user, p_gift, p_source, p_ref));
+end;
+$$;
+
 -- ================================================================ уровни и рефералы
 
 create function giftsim.level_for_xp(p_xp bigint) returns integer
@@ -622,6 +645,7 @@ declare
     v_gift  text;
     v_inv   bigint;
     v_open  bigint;
+    v_prize jsonb;
     v_last  timestamptz;
     v_rar   text;
 begin
@@ -649,16 +673,17 @@ begin
     v_gift := giftsim._case_roll(p_case_id);
     insert into giftsim.case_opens (user_id, case_id, price, gift_id)
     values (p_tg_id, p_case_id, v_price, v_gift) returning id into v_open;
-    v_inv := giftsim._give_gift(p_tg_id, v_gift, 'case', v_open::text);
+    v_prize := giftsim._grant_prize(p_tg_id, v_gift, 'case', v_open::text);
+    v_inv := (v_prize ->> 'inventory_id')::bigint;
     update giftsim.case_opens set inventory_id = v_inv where id = v_open;
     update giftsim.cases set opens_count = opens_count + 1 where id = p_case_id;
 
     perform giftsim._wager(p_tg_id, v_price);
     perform giftsim._stat(p_tg_id, 'cases_opened', 1);
-    select rarity into v_rar from giftsim.gifts where id = v_gift;
+    select rarity into v_rar from giftsim.gifts where id = v_gift and kind = 'nft';
     if v_rar in ('legendary', 'mythic') then perform giftsim._stat(p_tg_id, 'legendary_drops', 1); end if;
 
-    return jsonb_build_object('inventory_id', v_inv, 'gift', giftsim._gift_json(v_gift),
+    return jsonb_build_object('inventory_id', v_inv, 'gift', giftsim._gift_json(v_gift), 'prize', v_prize,
                               'price', v_price, 'balance', giftsim._balance(p_tg_id),
                               'referral_keys', (select referral_keys from giftsim.users where tg_id = p_tg_id));
 end;
@@ -723,7 +748,7 @@ declare
     v_round  bigint;
 begin
     if array_length(p_ids, 1) > 6 then raise exception 'too_many_items'; end if;
-    select price_stars into v_target from giftsim.gifts where id = p_target_gift and active;
+    select price_stars into v_target from giftsim.gifts where id = p_target_gift and active and kind = 'nft';
     if v_target is null then raise exception 'gift_not_found'; end if;
     v_stake := giftsim._take_items(p_tg_id, p_ids, 'consumed');
     if v_target <= v_stake then raise exception 'target_too_cheap'; end if;
@@ -766,7 +791,7 @@ begin
     -- кандидаты: подарки от 0.25x до 5x суммарной стоимости
     select array_agg(id order by price_stars), array_agg(price_stars::double precision order by price_stars)
       into v_ids, v_vals
-      from giftsim.gifts where active and price_stars between v_value * 0.25 and v_value * 5;
+      from giftsim.gifts where active and kind = 'nft' and price_stars between v_value * 0.25 and v_value * 5;
     v_a := giftsim._solve_a(v_vals, v_value * (giftsim.setting('contract_rtp'))::numeric);
     if v_a is null then raise exception 'contract_unavailable'; end if;
     select array_agg(power(v, -v_a) order by ord) into v_w from unnest(v_vals) with ordinality as t(v, ord);
@@ -1292,12 +1317,11 @@ begin
     update giftsim.battles set status = 'finished', winner_slot = v_win, total_value = v_total, finished_at = now()
      where id = p_id;
 
-    -- все дропы получает победитель (если победил бот — подарки сгорают)
-    insert into giftsim.inventory (user_id, gift_id, source, source_ref, value_at_drop)
-    select bp.user_id, d.gift_id, 'battle', p_id::text, d.value
-      from giftsim.battle_drops d
-      join giftsim.battle_players bp on bp.battle_id = p_id and bp.slot = v_win
-     where d.battle_id = p_id and bp.user_id is not null;
+    -- все дропы получает победитель (если победил бот — призы сгорают)
+    perform giftsim._grant_prize(bp.user_id, d.gift_id, 'battle', p_id::text)
+       from giftsim.battle_drops d
+       join giftsim.battle_players bp on bp.battle_id = p_id and bp.slot = v_win
+      where d.battle_id = p_id and bp.user_id is not null;
     perform giftsim._stat(user_id, 'battle_wins', 1)
        from giftsim.battle_players where battle_id = p_id and slot = v_win and user_id is not null;
 end;
@@ -1486,7 +1510,7 @@ language sql stable set search_path = giftsim, pg_temp as $$
     select coalesce(jsonb_agg(giftsim._gift_json(id) || jsonb_build_object('supply', supply, 'price_ton', price_ton)
                               order by price_stars), '[]'::jsonb)
       from giftsim.gifts
-     where active and price_stars >= p_min and (p_max is null or price_stars <= p_max)
+     where active and kind = 'nft' and price_stars >= p_min and (p_max is null or price_stars <= p_max)
        and (p_search is null or name ilike '%' || p_search || '%')
 $$;
 

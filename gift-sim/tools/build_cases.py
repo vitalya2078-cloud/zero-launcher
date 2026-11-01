@@ -24,7 +24,25 @@ for g in data["gifts"]:
     g = dict(g)
     g["stars"] = max(1, round(g["floor_ton"] * RATE))
     GIFTS[g["slug"]] = g
-ALL = sorted(GIFTS.values(), key=lambda g: (g["stars"], g["slug"]))
+ALL = sorted(GIFTS.values(), key=lambda g: (g["stars"], g["slug"]))  # только NFT
+
+# Призы звёздами: зачисляются на баланс. Ключ: +1 реферальный ключ (ценность = средний выигрыш «Реферального I»).
+STAR_AMOUNTS = [25, 50, 100, 150, 250, 400, 500, 750, 1000, 1500, 2500, 4000, 5000, 7500, 10000, 15000, 25000]
+STARS = {f"stars_{a}": dict(slug=f"stars_{a}", name=f"{a:,} звёзд".replace(",", " "), stars=a, kind="stars")
+         for a in STAR_AMOUNTS}
+KEY = dict(slug="ref_key", name="Реферальный ключ", stars=3000, kind="key")
+ITEMS = {**GIFTS, **STARS, KEY["slug"]: KEY}
+ADD_KEYS = False  # ключ как приз в кейсах — по решению владельца
+
+
+def star_prizes(price, fractions):
+    """Призы звёздами примерно на заданные доли цены кейса (без повторов)."""
+    out = []
+    for f in fractions:
+        amt = min(STAR_AMOUNTS, key=lambda a: abs(math.log(a / (price * f))))
+        if STARS[f"stars_{amt}"] not in out:
+            out.append(STARS[f"stars_{amt}"])
+    return out
 
 
 def q(s):
@@ -45,6 +63,8 @@ def pick_spread(pool, n):
     pool = sorted(pool, key=lambda g: (g["stars"], g["slug"]))
     if len(pool) <= n:
         return pool
+    if n == 1:
+        return [pool[len(pool) // 2]]
     lo, hi = math.log(pool[0]["stars"]), math.log(pool[-1]["stars"])
     chosen = []
     for i in range(n):
@@ -65,7 +85,7 @@ def jackpot_for(price, exclude):
 CASES = []  # dict(id, name, category, items[slugs], price, pay_mode, price_keys, cooldown, rtp, badge, description, sort)
 
 
-def add_case(cid, name, category, items, price=None, jackpot=True, **kw):
+def add_case(cid, name, category, items, price=None, jackpot=True, stars=(), key=False, **kw):
     items = sorted({g["slug"]: g for g in items}.values(), key=lambda g: g["stars"])
     if price is None:
         price = nice(ev_at([g["stars"] for g in items], SHAPE) / kw.get("rtp", RTP))
@@ -74,11 +94,14 @@ def add_case(cid, name, category, items, price=None, jackpot=True, **kw):
         jp = jackpot_for(price, {g["slug"] for g in items})
         if jp:
             items.append(jp)
+    items += star_prizes(price, stars)
+    if key and ADD_KEYS:
+        items.append(KEY)
     target = kw.get("rtp", RTP) * price
     if not (min(g["stars"] for g in items) < target < max(g["stars"] for g in items)):
         raise SystemExit(f"{cid}: недостижимый возврат, цена {price}, подарки {vals}")
     CASES.append(dict(id=cid, name=name, category=category, items=[g["slug"] for g in items], price=price,
-                      cover=max(items, key=lambda g: g["stars"])["slug"], **kw))
+                      cover=max((g for g in items if g.get("kind", "nft") == "nft"), key=lambda g: g["stars"])["slug"], **kw))
 
 
 def by_ton(lo, hi):
@@ -96,7 +119,7 @@ PRICE = [
     ("pepe",      "Plush Pepe",   (200, 7000),  8),
 ]
 for i, (cid, name, (lo, hi), n) in enumerate(PRICE):
-    add_case(cid, name, "price", pick_spread(by_ton(lo, hi), n), sort=i)
+    add_case(cid, name, "price", pick_spread(by_ton(lo, hi), n), stars=(0.3, 0.6), key=True, sort=i)
 
 # ---------------------------------------------------------------- тематические
 THEMES = [
@@ -125,18 +148,19 @@ THEMES = [
 ]
 for i, (cid, name, slugs) in enumerate(THEMES):
     items = [GIFTS[s] for s in slugs.split() if s in GIFTS]
-    add_case(cid, name, "theme", pick_spread(items, 12), jackpot=False, sort=i)
+    add_case(cid, name, "theme", pick_spread(items, 12), jackpot=False, stars=(0.3, 0.6), key=True, sort=i)
 
 # ---------------------------------------------------------------- кейс одного подарка: главный приз — сам подарок
 TOP = sorted([g for g in ALL if g["stars"] >= 5000], key=lambda g: -g["stars"])[:18]
 for i, t in enumerate(TOP):
-    pool = [g for g in ALL if t["stars"] / 80 <= g["stars"] <= t["stars"] / 4 and g["slug"] != t["slug"]]
-    items = pick_spread(pool, 7) + [t]
-    add_case("g_" + t["slug"], "Кейс " + t["name"], "gift", items, jackpot=False, sort=i,
-             description=f"Главный приз — {t['name']}")
+    price = max(500, nice(t["stars"] / 100))
+    mids = pick_spread([g for g in ALL if price * 1.5 <= g["stars"] <= t["stars"] / 5 and g["slug"] != t["slug"]], 2)
+    cheap = pick_spread([g for g in ALL if g["stars"] <= price * 1.2], 1) or [ALL[0]]
+    add_case("g_" + t["slug"], "Кейс " + t["name"], "gift", mids + cheap + [t], price=price, jackpot=False,
+             stars=(0.1, 0.25, 0.5, 0.75), key=True, sort=i, description=f"Главный приз — {t['name']}")
 
 # ---------------------------------------------------------------- особые и реферальные
-add_case("free", "🎁 Бесплатный", "special", pick_spread(by_ton(5, 8), 8), price=500,
+add_case("free", "🎁 Бесплатный", "special", pick_spread(by_ton(5, 6), 2), price=300, stars=(0.1, 0.2, 0.4, 0.8),
          pay_mode="free", cooldown=4, description="Бесплатно раз в 4 часа", badge="Бесплатно", sort=0)
 REF = [("ref_1", "🤝 Реферальный I", 1, 3000, (15, 150)),
        ("ref_3", "🤝 Реферальный II", 3, 10000, (40, 600)),
@@ -218,9 +242,17 @@ def main():
     out = out[:3] + report + [""] + out[3:]
     out.append("")
 
+    rows = []
+    for it in list(STARS.values()) + [KEY]:
+        rarity = "rare" if it["kind"] == "key" else ("epic" if it["stars"] >= 10000 else "rare" if it["stars"] >= 2500 else "common")
+        rows.append(f"  ({q(it['slug'])}, {q(it['name'])}, {q(it['kind'])}, {q(rarity)}, {it['stars']}, 'system')")
+    out.append("insert into giftsim.gifts (id, name, kind, rarity, price_stars, source) values\n" + ",\n".join(rows))
+    out.append("on conflict (id) do update set name = excluded.name, kind = excluded.kind, rarity = excluded.rarity, "
+               "price_stars = excluded.price_stars;")
+    out.append("")
     for c in CASES:
-        out.append(f"-- {c['name']} [{c['category']}]: {c['price']} зв., подарков {len(c['items'])}, "
-                   f"макс. {max(GIFTS[s]['stars'] for s in c['items'])}")
+        out.append(f"-- {c['name']} [{c['category']}]: {c['price']} зв., призов {len(c['items'])}, "
+                   f"макс. {max(ITEMS[s]['stars'] for s in c['items'])}")
         out.append(
             "insert into giftsim.cases (id, name, price_stars, cover_gift, sort, category, description, badge, pay_mode, "
             "price_keys, free_cooldown_h, odds_mode, target_rtp, active) values ("
