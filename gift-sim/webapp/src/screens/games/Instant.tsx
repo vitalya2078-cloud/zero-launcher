@@ -1,9 +1,11 @@
-import { useRef, useState } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { api, errorText } from "../../api";
 import { BetInput, GameHeader, ResultLine, Segmented, stageBg } from "../../components/game-ui";
 import { fmt } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
+import { sound } from "../../sound";
+import { Star } from "../../components/icons";
 
 type Risk = "low" | "mid" | "high";
 const RISKS: { id: Risk; label: string }[] = [
@@ -31,8 +33,8 @@ async function play<T extends Instant>(method: string, params: Record<string, un
 
 function finish(r: Instant) {
   setBalance(r.balance);
-  if (r.payout > r.bet) haptic.success();
-  else if (r.payout === 0) haptic.error();
+  if (r.payout > r.bet) { haptic.success(); sound.coins(); }
+  else if (r.payout === 0) { haptic.error(); sound.lose(); }
   else haptic.medium();
   refreshProfile().catch(() => {});
 }
@@ -50,6 +52,7 @@ export function Coinflip() {
     setBusy(true);
     setRes(null);
     haptic.medium();
+    sound.flip();
     const r = await play<Instant & { result: "heads" | "tails" }>("coinflip", { bet, side });
     if (!r) return setBusy(false);
     // монета делает 5 оборотов и останавливается выпавшей стороной
@@ -58,6 +61,7 @@ export function Coinflip() {
       return t + 1800 + ((r.result === "tails") !== showingTails ? 180 : 0);
     });
     setTimeout(() => {
+      sound.land();
       setRes(r);
       finish(r);
       setBusy(false);
@@ -114,11 +118,20 @@ export function Wheel() {
   const [angle, setAngle] = useState(0);
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState<Instant | null>(null);
+  const [lit, setLit] = useState(0); // «бегущие огни» на ободе
+  const spinRef = useRef<SVGSVGElement>(null);
+
+  // огни: медленно мерцают в покое, быстро бегут во время вращения
+  useEffect(() => {
+    const t = setInterval(() => setLit((x) => x + 1), busy ? 90 : 520);
+    return () => clearInterval(t);
+  }, [busy]);
 
   async function spin() {
     setBusy(true);
     setRes(null);
     haptic.medium();
+    sound.start();
     const r = await play<Instant & { segment: number; segments: number[] }>("wheel", { bet, risk });
     if (!r) return setBusy(false);
     setSegs(r.segments);
@@ -127,6 +140,26 @@ export function Wheel() {
     const jitter = (Math.random() - 0.5) * seg * 0.6;
     const target = 360 * 6 + (360 - (r.segment * seg + seg / 2)) + jitter;
     setAngle((a) => a - (a % 360) + target);
+
+    // щелчок и вибрация на каждой границе секторов под стрелкой
+    const started = performance.now();
+    let last = -1;
+    const loop = () => {
+      const el = spinRef.current;
+      if (el) {
+        const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+        const deg = ((Math.atan2(m.b, m.a) * 180) / Math.PI + 360) % 360;
+        const idx = Math.floor(deg / seg);
+        if (idx !== last) {
+          last = idx;
+          sound.tick();
+          haptic.reel();
+        }
+      }
+      if (performance.now() - started < 4000) requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+
     setTimeout(() => {
       setRes(r);
       finish(r);
@@ -134,33 +167,90 @@ export function Wheel() {
     }, 4200);
   }
 
-  const n = segs.length, seg = 360 / n, R = 140;
-  const arc = (i: number) => {
-    const a0 = ((i * seg - 90) * Math.PI) / 180, a1 = (((i + 1) * seg - 90) * Math.PI) / 180;
-    return `M150,150 L${150 + R * Math.cos(a0)},${150 + R * Math.sin(a0)} A${R},${R} 0 0,1 ${150 + R * Math.cos(a1)},${150 + R * Math.sin(a1)} Z`;
+  const n = segs.length, seg = 360 / n;
+  const C = 160, R = 120; // центр и радиус секторов в системе 320×320
+  const pt = (deg: number, r: number) => {
+    const a = ((deg - 90) * Math.PI) / 180;
+    return [C + r * Math.cos(a), C + r * Math.sin(a)];
   };
+  const arc = (i: number) => {
+    const [x0, y0] = pt(i * seg, R), [x1, y1] = pt((i + 1) * seg, R);
+    return `M${C},${C} L${x0},${y0} A${R},${R} 0 0,1 ${x1},${y1} Z`;
+  };
+  const BULBS = 20;
 
   return (
     <>
       <GameHeader title="Колесо" sub="Выше риск — жирнее множители" />
       <div class="wheel-stage glass stage-bg" style={stageBg("wheel")}>
-        <img class="wheel-pointer" src="./fx/pointer.webp" alt="" draggable={false} />
-        <img class="wheel-rim" src="./fx/rim.webp" alt="" draggable={false} />
-        <svg viewBox="0 0 300 300" class="wheel" style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 4s cubic-bezier(0.15, 0.8, 0.2, 1)" : "none" }}>
-          {segs.map((m, i) => (
-            <g>
-              <path d={arc(i)} fill={segColor(m)} stroke="#070b18" stroke-width="1.5" />
-              <text
-                x="150" y="40" fill="#fff" font-size="12" font-weight="700" text-anchor="middle"
-                transform={`rotate(${i * seg + seg / 2} 150 150)`}
-              >
-                {m === 0 ? "" : `×${m}`}
-              </text>
-            </g>
-          ))}
-          <circle cx="150" cy="150" r="34" fill="#0c1226" stroke="rgba(255,255,255,.2)" />
-        </svg>
-        <div class="wheel-center num">{res ? `×${res.multiplier}` : "★"}</div>
+        <div class="wheel-box">
+          {/* неподвижный обод с лампочками */}
+          <svg viewBox="0 0 320 320" class="wheel-rim-svg">
+            <defs>
+              <linearGradient id="rimGold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffe7a0" />
+                <stop offset="0.45" stop-color="#f3a93a" />
+                <stop offset="0.7" stop-color="#b8661c" />
+                <stop offset="1" stop-color="#ffd27a" />
+              </linearGradient>
+              <radialGradient id="bulbOn">
+                <stop offset="0" stop-color="#fffbe6" />
+                <stop offset="0.5" stop-color="#ffe07a" />
+                <stop offset="1" stop-color="#ff9d2e" />
+              </radialGradient>
+              <filter id="bulbGlow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur stdDeviation="3" result="b" />
+                <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+            <circle cx={C} cy={C} r="156" fill="rgba(255,170,60,0.12)" />
+            <circle cx={C} cy={C} r="150" fill="url(#rimGold)" />
+            <circle cx={C} cy={C} r="138" fill="none" stroke="rgba(90,40,0,0.55)" stroke-width="3" />
+            <circle cx={C} cy={C} r="126" fill="#0b1024" />
+            {Array.from({ length: BULBS }, (_, i) => {
+              const [x, y] = pt((i * 360) / BULBS, 144);
+              const on = busy ? (i + lit) % 4 < 2 : (i + lit) % 2 === 0;
+              return <circle cx={x} cy={y} r={on ? 5 : 4.2} fill={on ? "url(#bulbOn)" : "#7a4a14"} filter={on ? "url(#bulbGlow)" : undefined} />;
+            })}
+          </svg>
+
+          {/* вращающиеся сектора */}
+          <svg
+            ref={spinRef}
+            viewBox="0 0 320 320"
+            class="wheel-spin"
+            style={{ transform: `rotate(${angle}deg)`, transition: busy ? "transform 4s cubic-bezier(0.15, 0.8, 0.2, 1)" : "none" }}
+          >
+            <defs>
+              <radialGradient id="segShade" cx="50%" cy="50%" r="50%">
+                <stop offset="0.25" stop-color="#000" stop-opacity="0.35" />
+                <stop offset="0.75" stop-color="#fff" stop-opacity="0" />
+                <stop offset="1" stop-color="#fff" stop-opacity="0.18" />
+              </radialGradient>
+            </defs>
+            {segs.map((m, i) => (
+              <g>
+                <path d={arc(i)} fill={segColor(m)} stroke="#0b1024" stroke-width="1.6" />
+                {m > 0 && (
+                  <text
+                    x={C} y={C - R + 22} fill="#fff" font-size="12" font-weight="800" text-anchor="middle"
+                    transform={`rotate(${i * seg + seg / 2} ${C} ${C})`}
+                    style={{ paintOrder: "stroke", stroke: "rgba(0,0,0,0.35)", strokeWidth: 2 }}
+                  >
+                    ×{m}
+                  </text>
+                )}
+              </g>
+            ))}
+            <circle cx={C} cy={C} r={R} fill="url(#segShade)" />
+          </svg>
+
+          {/* ступица и стрелка поверх */}
+          <div class={`wheel-hub num ${res ? (res.payout > res.bet ? "win" : "lose") : ""}`}>
+            {res ? `×${res.multiplier}` : <Star size={30} />}
+          </div>
+          <img class="wheel-pointer" src="./fx/pointer.webp" alt="" draggable={false} />
+        </div>
       </div>
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       <Segmented value={risk} disabled={busy} onChange={(v) => { setRisk(v); setSegs(WHEEL_PREVIEW[v]); setRes(null); }} options={RISKS} />
@@ -204,7 +294,8 @@ export function Plinko() {
       if (step < ROWS) {
         pos += r.path[step];
         step++;
-        haptic.tick();
+        haptic.reel();
+        sound.peg();
         setBall({ x: pegX(step, pos), y: top + step * rowH - 6 });
         timer.current = window.setTimeout(next, 110);
       } else {

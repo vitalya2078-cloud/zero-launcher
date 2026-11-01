@@ -34,9 +34,9 @@ function loadAttrs(gift: string, num: number) {
 }
 
 // Цвета фона номера берём из его картинки: края — цвет по краям, середина — продолжение к центру.
-type Backdrop = { center: string; edge: string };
+export type Backdrop = { center: string; edge: string; hue: number; sat: number; light: number };
 const bdCache = new Map<string, Promise<Backdrop | null>>();
-function loadBackdrop(url: string) {
+export function loadBackdrop(url: string) {
   if (!bdCache.has(url)) {
     bdCache.set(url, new Promise((resolve) => {
       const img = new Image();
@@ -57,7 +57,7 @@ function loadBackdrop(url: string) {
           const mid = avg([[6, 16], [25, 16], [16, 3], [7, 8], [24, 8]]);
           const center = mid.map((m, i) => Math.max(0, Math.min(255, m + (m - edge[i]) * 0.9)));
           const rgb = (a: number[]) => `rgb(${a.map((v) => Math.round(v)).join(",")})`;
-          resolve({ center: rgb(center), edge: rgb(edge) });
+          resolve({ center: rgb(center), edge: rgb(edge), ...hsl(mid) });
         } catch {
           resolve(null);
         }
@@ -67,6 +67,16 @@ function loadBackdrop(url: string) {
     }));
   }
   return bdCache.get(url)!;
+}
+
+// оттенок фона — для сортировки коллекции «по цвету»
+function hsl([r, g, b]: number[]) {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min, light = (max + min) / 2;
+  const sat = d === 0 ? 0 : d / (1 - Math.abs(2 * light - 1));
+  let hue = 0;
+  if (d) hue = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return { hue: (hue * 60 + 360) % 360, sat, light };
 }
 
 const pct = (v: number | null) => (v == null ? "" : `${String(v).replace(".", ",")}%`);

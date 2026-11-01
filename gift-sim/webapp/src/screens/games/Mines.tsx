@@ -4,6 +4,7 @@ import { BetInput, GameHeader, stageBg } from "../../components/game-ui";
 import { fmt } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
+import { sound } from "../../sound";
 
 type Round = {
   round_id: number;
@@ -39,12 +40,15 @@ export function Mines() {
       if (r.status === "busted") {
         haptic.error();
         haptic.heavy();
+        sound.boom();
       } else if (r.status === "cashed") {
         haptic.success();
+        sound.coins();
         showToast(`+${fmt(r.payout)} ★`);
         refreshProfile().catch(() => {});
       } else {
         haptic.tap();
+        if (method === "mines_reveal") sound.gem();
       }
     } catch (e) {
       haptic.error();

@@ -1,5 +1,7 @@
 // Обёртка над Telegram.WebApp: безопасна вне Telegram (в браузере методы просто ничего не делают).
 
+import { vibroOn } from "./sound";
+
 type Haptic = {
   impactOccurred(style: "light" | "medium" | "heavy" | "rigid" | "soft"): void;
   notificationOccurred(type: "error" | "success" | "warning"): void;
@@ -48,14 +50,26 @@ export function initTelegram() {
   }
 }
 
+// Вибрация можно выключить в профиле (настройка общая с модулем звука).
+const hf = () => (vibroOn.value ? tg?.HapticFeedback : undefined);
+let lastReel = 0;
+
 export const haptic = {
-  tap: () => tg?.HapticFeedback?.impactOccurred("light"),
-  medium: () => tg?.HapticFeedback?.impactOccurred("medium"),
-  heavy: () => tg?.HapticFeedback?.impactOccurred("heavy"),
-  tick: () => tg?.HapticFeedback?.selectionChanged(),
-  success: () => tg?.HapticFeedback?.notificationOccurred("success"),
-  error: () => tg?.HapticFeedback?.notificationOccurred("error"),
-  warning: () => tg?.HapticFeedback?.notificationOccurred("warning"),
+  tap: () => hf()?.impactOccurred("light"),
+  medium: () => hf()?.impactOccurred("medium"),
+  heavy: () => hf()?.impactOccurred("heavy"),
+  tick: () => hf()?.selectionChanged(),
+  // прокрутка ленты/колеса: на Android selectionChanged почти не ощущается, поэтому лёгкий удар,
+  // но не чаще ~22 раз в секунду, чтобы не сливалось в гул
+  reel: () => {
+    const now = performance.now();
+    if (now - lastReel < 45) return;
+    lastReel = now;
+    hf()?.impactOccurred("light");
+  },
+  success: () => hf()?.notificationOccurred("success"),
+  error: () => hf()?.notificationOccurred("error"),
+  warning: () => hf()?.notificationOccurred("warning"),
 };
 
 // Кнопка «Назад» Telegram: показываем на вложенных экранах.

@@ -684,15 +684,15 @@ h1 {
 
 .reel {
   display: flex;
-  gap: 10px;
+  gap: var(--gap, 10px);
   padding: 10px 0;
   will-change: transform;
 }
 
 .reel-item {
   flex: none;
-  width: 100px;
-  height: 112px;
+  width: var(--iw, 100px);
+  height: var(--ih, 112px);
   border-radius: 18px;
   display: flex;
   flex-direction: column;
@@ -725,8 +725,6 @@ h1 {
 
 .reel-item img,
 .reel-item .art {
-  width: 66px;
-  height: 66px;
   position: relative;
 }
 
@@ -1525,3 +1523,64 @@ img.star.em { width: 1.15em !important; height: 1.15em !important; }
 .win-row.link:active { transform: scale(0.98); }
 .chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; margin-bottom: 6px; }
 .delta.center { display: block; text-align: center; font-weight: 700; font-size: 14px; }
+
+/* ---------------------------------------------------------------- несколько кейсов за раз */
+.reels { margin: 16px 0 18px; }
+.reels .reel-wrap { margin: 0 -16px; }
+.reels.multi .reel-wrap + .reel-wrap { margin-top: 4px; }
+.reels.multi .reel-item { border-radius: 14px; }
+.reels.multi .reel-item span { font-size: 10px; }
+.count-picker { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 4px; border-radius: 14px; background: var(--glass); border: 1px solid var(--stroke); }
+.count-picker button { height: 36px; border-radius: 10px; font-weight: 800; font-size: 14px; color: var(--text-2); }
+.count-picker button.on { color: #fff; background: linear-gradient(135deg, rgba(61, 155, 255, 0.45), rgba(139, 107, 255, 0.4)); }
+.multi-win { text-align: center; }
+.multi-win h2 { margin: 4px 0 14px; }
+.multi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.multi-total { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px; font-size: 16px; }
+.multi-total b { display: inline-flex; align-items: center; gap: 5px; font-size: 20px; }
+
+/* ---------------------------------------------------------------- плитки подарков как в Telegram */
+.nft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.nft-tile { position: relative; aspect-ratio: 1; padding: 0; border-radius: 16px; overflow: hidden; background: rgba(255, 255, 255, 0.05); transition: transform 0.15s; }
+.nft-tile:active { transform: scale(0.96); }
+.nft-tile > img, .nft-tile > .art { position: absolute; inset: 0; width: 100% !important; height: 100% !important; object-fit: cover; border-radius: 0 !important; }
+.nft-tile.plain > img, .nft-tile.plain > .art { inset: 14%; width: 72% !important; height: 72% !important; object-fit: contain; }
+.nft-tile .ribbon {
+  position: absolute; top: 13px; right: -34px; width: 120px; transform: rotate(45deg);
+  padding: 3px 0; text-align: center; font-size: 10px; font-weight: 800; letter-spacing: 0.02em; color: #fff;
+  background: rgba(10, 12, 30, 0.32); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.nft-tile .tile-price {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+  font-size: 11px; font-weight: 800; color: #fff; background: rgba(8, 10, 24, 0.45);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.nft-tile .tile-badge { position: absolute; top: 6px; left: 6px; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 999px; background: rgba(8, 10, 24, 0.5); }
+.nft-tile.selected { outline: 3px solid var(--accent); outline-offset: -3px; }
+.nft-tile .check { position: absolute; top: 6px; right: 6px; z-index: 2; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; background: var(--accent); color: #fff; }
+.coll-chips { margin: 0 -16px 12px; }
+.coll-chips .chip { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.coll-chips .chip img, .coll-chips .chip .art { width: 22px; height: 22px; border-radius: 6px !important; }
+.chip-n { font-size: 11px; font-weight: 800; opacity: 0.6; }
+
+/* ---------------------------------------------------------------- колесо (SVG: неподвижный обод + вращающиеся сектора) */
+.wheel-stage { padding: 18px 12px; display: grid; place-items: center; overflow: hidden; }
+.wheel-box { position: relative; width: min(310px, 80vw); aspect-ratio: 1; }
+.wheel-rim-svg, .wheel-spin { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wheel-rim-svg { filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.55)); }
+.wheel-spin { will-change: transform; }
+.wheel-hub {
+  position: absolute; left: 50%; top: 50%; width: 24%; height: 24%; transform: translate(-50%, -50%);
+  display: grid; place-items: center; border-radius: 50%; z-index: 2;
+  font-weight: 900; font-size: 17px; color: #fff;
+  background: radial-gradient(circle at 35% 30%, #2a3566, #0b1024 70%);
+  border: 3px solid #e9a43c; box-shadow: 0 0 0 3px rgba(80, 40, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.6), inset 0 2px 6px rgba(255, 255, 255, 0.15);
+}
+.wheel-hub.win { color: #7dffc0; }
+.wheel-hub.lose { color: #ff8a98; }
+.wheel-box .wheel-pointer { position: absolute; top: -5%; left: 50%; width: 13%; height: auto; transform: translateX(-50%); z-index: 3; border: 0; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6)); }
+
+.settings { margin-top: 12px; border-radius: 16px; overflow: hidden; }
+.set-row { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; font-size: 15px; font-weight: 600; }
+.set-row + .set-row { border-top: 1px solid var(--stroke); }

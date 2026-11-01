@@ -7,6 +7,7 @@ import { ago, fmt, plural, RARITY, short, SOURCE } from "../format";
 import { go, showToast } from "../state";
 import { haptic } from "../tg";
 import { NftCard } from "../components/NftCard";
+import { CollectionChips, NftTile } from "../components/NftTile";
 import { Sheet } from "../components/ui";
 import type { Gift, Leaderboard, LbKind, PlayerProfile } from "../types";
 
@@ -107,6 +108,7 @@ export function Top() {
 export function Player({ id }: { id: string }) {
   const [p, setP] = useState<PlayerProfile | null | undefined>(undefined);
   const [open, setOpen] = useState<Gift | null>(null);
+  const [coll, setColl] = useState<string | null>(null);
 
   useEffect(() => {
     api<PlayerProfile | null>("player", { id }).then(setP).catch((e) => {
@@ -171,16 +173,14 @@ export function Player({ id }: { id: string }) {
       {p.collection.length === 0 ? (
         <div class="empty glass" style={{ padding: "28px 20px" }}>Коллекция пока пустая</div>
       ) : (
-        <div class="gift-grid">
-          {p.collection.map((g) => (
-            <button class="gift-card glass" style={{ "--rc": RARITY[g.rarity].color }} key={g.inv_id}
-              onClick={() => { haptic.tap(); setOpen(g); }}>
-              <GiftArt gift={g} size={56} />
-              <div class="g-name">{g.name}</div>
-              <div class="g-val num"><Star /> {short(g.value)}</div>
-            </button>
-          ))}
-        </div>
+        <>
+          <CollectionChips items={p.collection} value={coll} onChange={(v) => { haptic.tick(); setColl(v); }} />
+          <div class="nft-grid">
+            {p.collection.filter((g) => !coll || g.id === coll).map((g) => (
+              <NftTile g={g} key={g.inv_id} onClick={() => { haptic.tap(); setOpen(g); }} />
+            ))}
+          </div>
+        </>
       )}
       {p.collection_count > p.collection.length && (
         <div class="dim" style={{ textAlign: "center", fontSize: 12, marginTop: 8 }}>

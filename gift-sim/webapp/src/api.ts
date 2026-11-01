@@ -32,6 +32,8 @@ const MESSAGES: Record<string, string> = {
   insufficient_balance: "Недостаточно звёзд",
   not_enough_keys: "Не хватает ключей",
   case_cooldown: "Бесплатный кейс ещё недоступен",
+  free_case_single: "Бесплатный кейс открывается по одному",
+  bad_count: "Можно открыть от 1 до 5 кейсов",
   case_sold_out: "Кейс закончился",
   case_expired: "Кейс больше недоступен",
   daily_not_ready: "Бонус уже забран — загляни позже",

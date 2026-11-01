@@ -7,6 +7,7 @@ import { Sheet } from "../../components/ui";
 import { fmt, RARITY, short } from "../../format";
 import { refreshInventory, refreshProfile, showToast } from "../../state";
 import { haptic } from "../../tg";
+import { sound } from "../../sound";
 import type { Gift, InventoryItem } from "../../types";
 
 // ---------------------------------------------------------------- апгрейд
@@ -34,12 +35,25 @@ export function Upgrade() {
       const r = await api<{ win: boolean; chance: number; roll: number; gift: Gift }>("upgrade", { ids: stake.map((s) => s.id), target: target.id });
       // стрелка останавливается на выпавшем числе: зелёный сектор — от 0 до шанса
       setAngle((a) => a - (a % 360) + 360 * 5 + r.roll * 360);
+      sound.start();
+      // щелчки, пока крутится стрелка: частые в начале, редкие к концу (как замедление)
+      const started = performance.now();
+      const clicks = () => {
+        const k = (performance.now() - started) / 3200;
+        if (k >= 1) return;
+        sound.tick();
+        haptic.reel();
+        setTimeout(clicks, 40 + 420 * k * k);
+      };
+      clicks();
       setTimeout(() => {
         if (r.win) {
+          sound.win(r.gift.rarity);
           haptic.success();
           setWon(r.gift);
         } else {
           haptic.error();
+          sound.lose();
           setLost(true);
         }
         setStake([]);
@@ -148,10 +162,12 @@ export function Contract() {
   async function sign() {
     setBusy(true);
     haptic.medium();
+    sound.seal();
     try {
       const r = await api<{ gift: Gift; stake_value: number }>("contract", { ids: items.map((i) => i.id) });
       setTimeout(() => {
         haptic.success();
+        sound.win(r.gift.rarity);
         setWon({ gift: r.gift, stake: r.stake_value });
         setItems([]);
         setBusy(false);

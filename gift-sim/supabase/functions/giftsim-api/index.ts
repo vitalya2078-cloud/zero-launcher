@@ -105,6 +105,11 @@ const routes: Record<string, Route> = {
   cases: (u) => one(sql`select giftsim.list_cases_v2(${u}) as r`),
   case: (_u, p) => one(sql`select giftsim.get_case(${str(p.id, "id")}) as r`),
   open_case: (u, p) => one(sql`select giftsim.open_case(${u}, ${str(p.id, "id")}) as r`),
+  open_cases: (u, p) => {
+    const count = int(p.count, "count");
+    if (count < 1 || count > 5) throw new BadParams("count");
+    return one(sql`select giftsim.open_case_multi(${u}, ${str(p.id, "id")}, ${count}) as r`);
+  },
   drops: (_u, p) => one(sql`select giftsim.recent_drops(${p.limit ? int(p.limit, "limit") : 20}) as r`),
   gifts: (_u, p) => one(sql`select giftsim.list_gifts(${p.min ? int(p.min, "min") : 0}, ${p.max ? int(p.max, "max") : null}, ${p.search ? str(p.search, "search") : null}) as r`),
   gift_history: (_u, p) => one(sql`select giftsim.gift_history(${str(p.id, "id")}, ${p.days ? int(p.days, "days") : 7}) as r`),

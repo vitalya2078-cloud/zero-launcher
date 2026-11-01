@@ -2,7 +2,9 @@ import { stageBg } from "../components/game-ui";
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { GiftArt } from "../components/GiftArt";
-import { NftAction, NftCard } from "../components/NftCard";
+import { loadBackdrop, NftAction, NftCard, type Backdrop } from "../components/NftCard";
+import { Segmented } from "../components/game-ui";
+import { CollectionChips, NftTile } from "../components/NftTile";
 import { Ico, Star } from "../components/icons";
 import { Sheet } from "../components/ui";
 import { fmt, plural, RARITY, short } from "../format";
@@ -12,16 +14,49 @@ import type { InventoryItem } from "../types";
 
 type History = { points: { t: string; stars: number }[]; change_24h: number | null };
 
+type Sort = "price" | "new" | "color";
+
+// «По цвету»: цветные фоны по кругу оттенков (красный → оранжевый → … → розовый), серые и чёрные — в конце по яркости
+function sortItems(items: InventoryItem[], sort: Sort, colors: Map<number, Backdrop>) {
+  if (sort === "new") return [...items].sort((a, b) => b.obtained_at.localeCompare(a.obtained_at) || b.id - a.id);
+  if (sort === "color" && colors.size) {
+    const key = (i: InventoryItem) => {
+      const c = colors.get(i.id);
+      if (!c) return 2000;
+      return c.sat < 0.18 ? 1000 + (1 - c.light) * 100 : c.hue;
+    };
+    return [...items].sort((a, b) => key(a) - key(b) || b.value - a.value);
+  }
+  return items;
+}
+
 export function Inventory() {
   const inv = inventory.value;
   const [selecting, setSelecting] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [open, setOpen] = useState<InventoryItem | null>(null);
   const [busy, setBusy] = useState(false);
+  const [sort, setSort] = useState<Sort>(() => (localStorage.getItem("inv_sort") as Sort) || "price");
+  const [colors, setColors] = useState<Map<number, Backdrop>>(new Map());
+  const [coll, setColl] = useState<string | null>(null);
 
   useEffect(() => {
     refreshInventory().catch((e) => showToast(errorText(e), "err"));
   }, []);
+
+  // для сортировки по цвету берём оттенок фона каждого номера из его картинки
+  useEffect(() => {
+    if (sort !== "color" || !inv) return;
+    let live = true;
+    Promise.all(inv.items.map((i) => (i.image_url ? loadBackdrop(i.image_url).then((b) => [i.id, b] as const) : null)))
+      .then((list) => {
+        if (!live) return;
+        const m = new Map<number, Backdrop>();
+        for (const x of list) if (x?.[1]) m.set(x[0], x[1]);
+        setColors(m);
+      });
+    return () => { live = false; };
+  }, [sort, inv]);
 
   if (!inv) {
     return (
@@ -37,6 +72,8 @@ export function Inventory() {
     );
   }
 
+  const items = sortItems(inv.items, sort, colors);
+  const shown = coll ? items.filter((g) => g.gift_id === coll) : items;
   const selValue = inv.items.filter((i) => selected.has(i.id)).reduce((s, i) => s + i.value, 0);
 
   async function sell(ids: number[]) {
@@ -100,30 +137,29 @@ export function Inventory() {
           </button>
         </div>
       ) : (
-        <div class="gift-grid">
-          {inv.items.map((g) => {
+        <>
+        <Segmented
+          value={sort}
+          onChange={(v) => { setSort(v); localStorage.setItem("inv_sort", v); }}
+          options={[{ id: "price", label: "Дороже" }, { id: "new", label: "Новые" }, { id: "color", label: "По цвету" }]}
+        />
+        <CollectionChips items={inv.items} value={coll} onChange={(v) => { haptic.tick(); setColl(v); }} />
+        <div class="nft-grid">
+          {shown.map((g) => {
             const diff = g.value_at_drop ? (g.value - g.value_at_drop) / g.value_at_drop : 0;
             return (
-              <button
-                class={`gift-card glass ${selected.has(g.id) ? "selected" : ""}`}
-                style={{ "--rc": RARITY[g.rarity].color }}
+              <NftTile
+                g={g}
+                selected={selected.has(g.id)}
                 onClick={() => (selecting ? toggle(g.id) : setOpen(g))}
+                badge={Math.abs(diff) >= 0.01 ? <span class={diff > 0 ? "up" : "down"}>{diff > 0 ? "▲" : "▼"} {Math.abs(diff * 100).toFixed(0)}%</span> : undefined}
               >
                 {selecting && selected.has(g.id) && <span class="check">✓</span>}
-                <GiftArt gift={g} size={64} />
-                <div class="g-name">{g.name}</div>
-                <div class="g-val num">
-                  <Star /> {short(g.value)}
-                </div>
-                {Math.abs(diff) >= 0.01 && (
-                  <div class={`delta ${diff > 0 ? "up" : "down"} num`}>
-                    {diff > 0 ? "▲" : "▼"} {Math.abs(diff * 100).toFixed(0)}%
-                  </div>
-                )}
-              </button>
+              </NftTile>
             );
           })}
         </div>
+        </>
       )}
 
       {selecting && selected.size > 0 && (

@@ -5,6 +5,7 @@ import { Ico, KeyIcon, Star } from "../components/icons";
 import { fmt } from "../format";
 import { go, profile, showToast } from "../state";
 import { haptic, referralLink, shareLink, tg } from "../tg";
+import { setSound, setVibro, sound, soundOn, vibroOn } from "../sound";
 import type { Profile as P, Task } from "../types";
 
 export function Profile() {
@@ -103,6 +104,17 @@ export function Profile() {
             Поделиться
           </button>
         </div>
+      </div>
+
+      <div class="settings glass">
+        <button class="set-row" onClick={() => { setSound(!soundOn.value); if (!soundOn.value) return; sound.click(); }}>
+          <span>Звук</span>
+          <span class={`switch ${soundOn.value ? "on" : ""}`} />
+        </button>
+        <button class="set-row" onClick={() => { setVibro(!vibroOn.value); haptic.medium(); }}>
+          <span>Вибрация</span>
+          <span class={`switch ${vibroOn.value ? "on" : ""}`} />
+        </button>
       </div>
 
       {tasks && (

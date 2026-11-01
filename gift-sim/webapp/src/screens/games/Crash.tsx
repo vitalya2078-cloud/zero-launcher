@@ -4,6 +4,7 @@ import { BetInput, GameHeader, stageBg } from "../../components/game-ui";
 import { fmt, short } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
+import { sound } from "../../sound";
 
 import { CrashScene } from "./crashScene";
 
@@ -87,12 +88,14 @@ export function Crash() {
   function react(st: State) {
     if (lastPhase.current === "running" && st.phase === "crashed") {
       haptic.heavy();
+      sound.boom();
       const mine = st.bets.find((b) => b.me);
       if (mine?.status === "lost") haptic.error();
     }
     const mineStatus = st.bets.find((b) => b.me)?.status;
     if (mineStatus === "cashed" && prevMine.current === "active") {
       haptic.success(); // сработал автовывод
+      sound.coins();
       refreshProfile().catch(() => {});
     }
     prevMine.current = mineStatus;
@@ -169,6 +172,7 @@ export function Crash() {
       prevMine.current = "cashed"; // вывод ручной — не путать с автовыводом в react()
       apply(st, sent);
       haptic.success();
+      sound.coins();
       showToast(`Забрали ×${st.cashout_at} — +${fmt(st.payout)} ★`);
       refreshProfile().catch(() => {});
     } catch (e) {
