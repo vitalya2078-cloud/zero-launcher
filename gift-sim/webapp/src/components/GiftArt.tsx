@@ -1,8 +1,8 @@
 import { useState } from "preact/hooks";
 import type { Gift } from "../types";
-import { Ico, KeyIcon, Star } from "./icons";
+import { Ico, KeyIcon } from "./icons";
 
-// Картинка приза: NFT — изображение с Fragment; звёзды — большая звезда с суммой; ключ — иконка.
+// Картинка приза: NFT — изображение с Fragment; звёзды — звезда Telegram (векторная, с fragment.com); ключ — иконка.
 export function GiftArt({ gift, size = 64 }: { gift: Pick<Gift, "kind" | "image_url" | "name" | "value">; size?: number }) {
   const [broken, setBroken] = useState(false);
 
@@ -10,7 +10,7 @@ export function GiftArt({ gift, size = 64 }: { gift: Pick<Gift, "kind" | "image_
     // сумма всегда подписана рядом (в карточке, ленте, окне выигрыша), поэтому на звезде её не дублируем
     return (
       <span class="art" style={{ width: size, height: size }}>
-        <Star size={size * 0.86} />
+        <img class="tg-star" src="./icons/tg-star.svg" alt="звёзды" style={{ width: size * 0.86, height: size * 0.86 }} draggable={false} />
       </span>
     );
   }

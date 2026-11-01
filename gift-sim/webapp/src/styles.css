@@ -1435,3 +1435,46 @@ img.star.em { width: 1.15em !important; height: 1.15em !important; }
 @keyframes twinkle { from { opacity: 0.35; transform: scale(0.96); } to { opacity: 0.7; transform: scale(1.04); } }
 .result-line { position: relative; }
 .result-coins { width: 34px; height: 34px; margin-right: auto; margin-left: -4px; padding-right: 8px; box-sizing: content-box; }
+
+/* ---------------------------------------------------------------- топ игроков */
+
+.top-entry { width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-top: 12px; border-radius: 18px; text-align: left; }
+.top-entry .t-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.top-entry .t-body b { font-size: 16px; }
+.top-entry .t-body span { font-size: 12px; color: var(--text-3); }
+.top-entry .chev, .lb-row .chev { font-size: 24px; color: var(--text-3); line-height: 1; }
+.top-entry:active, .lb-row:active, .drop.link:active { transform: scale(0.98); }
+.drop.link { cursor: pointer; }
+
+.lb-list { display: grid; gap: 8px; }
+.lb-row { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 18px; text-align: left; transition: transform 0.12s; position: relative; overflow: hidden; }
+.lb-row.me { border-color: rgba(61, 155, 255, 0.6); background: linear-gradient(90deg, rgba(61, 155, 255, 0.16), rgba(139, 107, 255, 0.08)); }
+.lb-rank { width: 30px; height: 30px; flex: none; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 14px; color: var(--text-2); background: rgba(255, 255, 255, 0.06); }
+.lb-row.top1 .lb-rank { color: #3a2400; background: linear-gradient(135deg, #ffe08a, #ffad3b); box-shadow: 0 0 14px rgba(255, 190, 80, 0.45); }
+.lb-row.top2 .lb-rank { color: #1d2433; background: linear-gradient(135deg, #f1f5ff, #a9b6cf); }
+.lb-row.top3 .lb-rank { color: #2c1505; background: linear-gradient(135deg, #f4b98a, #c27240); }
+.lb-row.top1::before { content: ""; position: absolute; inset: 0; background: radial-gradient(120px 60px at 0% 50%, rgba(255, 190, 80, 0.16), transparent 70%); pointer-events: none; }
+.lb-row .avatar { width: 44px; height: 44px; font-size: 18px; }
+.lb-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lb-name b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-name span { font-size: 12px; color: var(--text-3); }
+.lb-score { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; flex: none; }
+.lb-score b { font-size: 15px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; }
+.lb-score small { font-size: 11px; color: var(--text-3); }
+.lb-mine { position: sticky; bottom: calc(var(--tabbar-h) + 22px + var(--safe-bottom)); display: flex; align-items: center; gap: 8px; padding: 12px 16px; margin-top: 12px; border-radius: 16px; border-color: rgba(61, 155, 255, 0.6); background: rgba(14, 22, 48, 0.92); }
+.lb-mine b { display: inline-flex; align-items: center; gap: 4px; }
+.lb-mine .spacer { flex: 1; }
+
+/* профиль игрока */
+.player-name { font-weight: 800; font-size: 18px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.me-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(61, 155, 255, 0.3); color: #cfe3ff; }
+.best-drop, .win-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 16px; position: relative; overflow: hidden; }
+.best-drop { margin-top: 10px; background: linear-gradient(90deg, color-mix(in srgb, var(--rc) 22%, transparent), rgba(255, 255, 255, 0.03)); border-color: color-mix(in srgb, var(--rc) 45%, transparent); }
+.win-row { margin-bottom: 8px; }
+.win-row::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--rc); }
+.best-drop .t-body, .win-row .t-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.best-drop .t-body span, .win-row .t-body span { font-size: 12px; color: var(--text-3); }
+.best-drop .t-body b, .win-row .t-body b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.best-drop > b, .win-row > b { display: inline-flex; align-items: center; gap: 4px; flex: none; font-weight: 800; }
+.best-drop img, .win-row img:not(.star) { border-radius: 12px; }
+.tg-star { object-fit: contain; filter: drop-shadow(0 4px 10px rgba(255, 170, 40, 0.35)); border-radius: 0 !important; }

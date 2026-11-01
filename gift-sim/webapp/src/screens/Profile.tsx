@@ -3,7 +3,7 @@ import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
 import { Ico, KeyIcon, Star } from "../components/icons";
 import { fmt } from "../format";
-import { profile, showToast } from "../state";
+import { go, profile, showToast } from "../state";
 import { haptic, referralLink, shareLink, tg } from "../tg";
 import type { Profile as P, Task } from "../types";
 
@@ -71,6 +71,15 @@ export function Profile() {
           <span>друзей</span>
         </div>
       </div>
+
+      <button class="top-entry glass" onClick={() => { haptic.tap(); go({ name: "top" }); }}>
+        <Ico name="games/jackpot" size={44} />
+        <div class="t-body">
+          <b>Топ игроков</b>
+          <span>Выигрыши, уровни и коллекции</span>
+        </div>
+        <span class="chev">›</span>
+      </button>
 
       <div class="section-title">
         <h2><Ico name="cat-friends" size={30} />Друзья</h2>

@@ -13,7 +13,9 @@ export type Route =
   | { name: "inventory" }
   | { name: "profile" }
   | { name: "case"; id: string }
-  | { name: "game"; id: GameId };
+  | { name: "game"; id: GameId }
+  | { name: "top" }
+  | { name: "player"; id: string };
 
 export type GameId = "crash" | "upgrade" | "contract" | "mines" | "wheel" | "plinko" | "coinflip" | "jackpot" | "battles";
 

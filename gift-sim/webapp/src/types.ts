@@ -72,7 +72,28 @@ export type InventoryItem = Omit<Gift, "id"> & {
   obtained_at: string;
 };
 
-export type Drop = Gift & { user: string; source: string; at: string };
+export type Drop = Gift & { user: string; uid: string | null; source: string; at: string };
+
+export type LbKind = "won" | "level" | "inventory";
+export type LbItem = { id: string; user: string; photo_url: string | null; level: number; score: number; rank: number; me: boolean };
+export type Leaderboard = { kind: LbKind; items: LbItem[]; me: { rank: number; score: number } | null };
+
+export type PlayerWin = Gift & { source: string; at: string };
+export type PlayerProfile = {
+  id: string;
+  user: string;
+  photo_url: string | null;
+  level: number;
+  me: boolean;
+  total_won: number;
+  cases_opened: number;
+  since: string;
+  collection_value: number;
+  collection_count: number;
+  collection: (Gift & { inv_id: number })[];
+  best: Gift | null;
+  recent: PlayerWin[];
+};
 
 export type Task = {
   id: string;

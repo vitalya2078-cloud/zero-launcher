@@ -36,6 +36,24 @@ export function timeLeft(iso: string | null): string | null {
   return h > 0 ? `${h}ч ${String(m).padStart(2, "0")}м` : `${m}:${String(s).padStart(2, "0")}`;
 }
 
+// «5 мин назад», «2 ч назад»…
+export function ago(iso: string): string {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return "только что";
+  if (s < 3600) return `${Math.floor(s / 60)} мин назад`;
+  if (s < 86400) return `${Math.floor(s / 3600)} ч назад`;
+  const d = Math.floor(s / 86400);
+  return `${d} ${plural(d, "день", "дня", "дней")} назад`;
+}
+
+export const SOURCE: Record<string, string> = {
+  case: "Кейс",
+  upgrade: "Апгрейд",
+  contract: "Контракт",
+  jackpot: "Джекпот",
+  battle: "Битва",
+};
+
 export function plural(n: number, one: string, few: string, many: string) {
   const m10 = n % 10, m100 = n % 100;
   if (m10 === 1 && m100 !== 11) return one;

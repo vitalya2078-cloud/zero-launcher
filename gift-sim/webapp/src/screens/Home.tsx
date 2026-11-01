@@ -80,7 +80,12 @@ export function Home() {
       {drops.length > 0 && (
         <div class="ticker">
           {drops.map((d) => (
-            <div class="drop glass" style={{ "--rc": RARITY[d.rarity].color }} key={d.at + d.id}>
+            <div
+              class={`drop glass ${d.uid ? "link" : ""}`}
+              style={{ "--rc": RARITY[d.rarity].color }}
+              key={d.at + d.id}
+              onClick={d.uid ? () => { haptic.tap(); go({ name: "player", id: d.uid! }); } : undefined}
+            >
               <GiftArt gift={d} size={44} />
               <div class="num" style={{ fontSize: 11, fontWeight: 700 }}>
                 {short(d.value)}

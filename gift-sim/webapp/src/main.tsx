@@ -8,6 +8,7 @@ import { Games } from "./screens/Games";
 import { Home } from "./screens/Home";
 import { Inventory } from "./screens/Inventory";
 import { Profile } from "./screens/Profile";
+import { Player, Top } from "./screens/Top";
 import { Crash } from "./screens/games/Crash";
 import { Contract, Upgrade } from "./screens/games/GiftGames";
 import { Coinflip, Plinko, Wheel } from "./screens/games/Instant";
@@ -39,7 +40,7 @@ function App() {
 
   const r = route.value;
   useEffect(() => {
-    setBack(r.name === "case" || r.name === "game" ? back : null);
+    setBack(r.name === "case" || r.name === "game" || r.name === "top" || r.name === "player" ? back : null);
   }, [r.name]);
 
   if (error) {
@@ -66,6 +67,8 @@ function App() {
       {r.name === "inventory" && <Inventory />}
       {r.name === "profile" && <Profile />}
       {r.name === "case" && <CaseScreen id={r.id} />}
+      {r.name === "top" && <Top />}
+      {r.name === "player" && <Player key={r.id} id={r.id} />}
       {r.name === "game" && (() => { const G = GAME_SCREENS[r.id]; return <G key={r.id} />; })()}
       <TabBar />
       <Toast />

@@ -147,7 +147,16 @@ const routes: Record<string, Route> = {
     const verified = chat ? await isSubscribed(chat as string, u) : false;
     return one(sql`select giftsim.claim_task(${u}, ${id}, ${verified}) as r`);
   },
-  leaderboard: (_u, p) => one(sql`select giftsim.leaderboard(${str(p.kind ?? "won", "kind", 16)}) as r`),
+  leaderboard: (u, p) => {
+    const kind = str(p.kind ?? "won", "kind", 16);
+    if (!["won", "level", "inventory"].includes(kind)) throw new BadParams("kind");
+    return one(sql`select giftsim.leaderboard(${kind}, ${u}) as r`);
+  },
+  player: (u, p) => {
+    const id = str(p.id, "id", 36);
+    if (!/^[0-9a-f-]{36}$/i.test(id)) throw new BadParams("id");
+    return one(sql`select giftsim.player_profile(${id}::uuid, ${u}) as r`);
+  },
 
   admin_overview: (u) => one(sql`select giftsim.admin_overview(${u}) as r`),
   admin_cases: (u) => one(sql`select giftsim.admin_list_cases(${u}) as r`),
@@ -197,7 +206,7 @@ Deno.serve(async (req) => {
         ${u.last_name ?? null}, ${u.photo_url ?? null}, ${u.language_code ?? null}, ${session.startParam}) as r`);
       return json({ result: r });
     }
-    const route = routes[method];
+    const route = Object.hasOwn(routes, method) ? routes[method] : undefined;
     if (!route) return json({ error: "unknown_method" }, 404);
     return json({ result: await route(u.id, body.params ?? {}) });
   } catch (e) {
