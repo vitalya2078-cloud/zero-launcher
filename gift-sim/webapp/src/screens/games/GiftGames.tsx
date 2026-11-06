@@ -9,6 +9,7 @@ import { refreshInventory, refreshProfile, showToast } from "../../state";
 import { haptic } from "../../tg";
 import { sound } from "../../sound";
 import type { Gift, InventoryItem } from "../../types";
+import { tf, ts } from "../../money";
 
 // ---------------------------------------------------------------- апгрейд
 
@@ -90,7 +91,7 @@ export function Upgrade() {
           {stake.length ? (
             <>
               <div class="pick-gifts">{stake.slice(0, 3).map((g) => <GiftArt gift={g} size={40} />)}</div>
-              <b class="num"><Star /> {short(stakeValue)}</b>
+              <b class="num"><Star /> {ts(stakeValue)}</b>
               <span class="dim">{stake.length} шт.</span>
             </>
           ) : (
@@ -102,7 +103,7 @@ export function Upgrade() {
           {target ? (
             <>
               <GiftArt gift={target} size={48} />
-              <b class="num"><Star /> {short(target.value)}</b>
+              <b class="num"><Star /> {ts(target.value)}</b>
               <span class="dim">×{(target.value / Math.max(1, stakeValue)).toFixed(1)}</span>
             </>
           ) : (
@@ -140,7 +141,7 @@ function TargetPicker({ min, onPick, onClose }: { min: number; onPick: (g: Gift)
             <button class="gift-card glass" style={{ "--rc": RARITY[g.rarity].color }} onClick={() => { haptic.tick(); onPick(g); }}>
               <GiftArt gift={g} size={56} />
               <div class="g-name">{g.name}</div>
-              <div class="g-val num"><Star /> {short(g.value)}</div>
+              <div class="g-val num"><Star /> {ts(g.value)}</div>
               <div class="g-chance num">{(Math.min((min / g.value) * UPGRADE_RTP, UPGRADE_MAX) * 100).toFixed(1)}%</div>
             </button>
           ))}
@@ -197,15 +198,15 @@ export function Contract() {
       </div>
       <div class="mines-info glass num">
         <div><span class="dim">Подарков</span><b>{items.length}/10</b></div>
-        <div><span class="dim">Стоимость</span><b>{short(value)} ★</b></div>
-        <div><span class="dim">Возможный приз</span><b>{value ? `${short(value * 0.25)}–${short(value * 5)}` : "—"}</b></div>
+        <div><span class="dim">Стоимость</span><b>{ts(value)} TON</b></div>
+        <div><span class="dim">Возможный приз</span><b>{value ? `${ts(value * 0.25)}–${ts(value * 5)}` : "—"}</b></div>
       </div>
       <button class="btn" disabled={busy || items.length < 3} onClick={sign}>
         {items.length >= 3 && <img class="btn-seal" src="./fx/seal.webp" alt="" />}
-        {busy ? "Подписываем" : items.length < 3 ? `Добавьте ещё ${3 - items.length}` : `Подписать контракт · ${fmt(value)} ★`}
+        {busy ? "Подписываем" : items.length < 3 ? `Добавьте ещё ${3 - items.length}` : `Подписать контракт · ${tf(value)} TON`}
       </button>
       {picking && <ItemPicker title="Подарки для контракта" min={0} max={10} onClose={() => setPicking(false)} onDone={(x) => { setItems(x); setPicking(false); }} />}
-      {won && <PrizeSheet gift={won.gift} note={`Контракт на ${fmt(won.stake)} ★ исполнен`} onClose={() => setWon(null)} />}
+      {won && <PrizeSheet gift={won.gift} note={`Контракт на ${tf(won.stake)} TON исполнен`} onClose={() => setWon(null)} />}
     </>
   );
 }

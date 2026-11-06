@@ -11,6 +11,7 @@ import { profile, refreshInventory, refreshProfile, setBalance, showToast } from
 import { haptic } from "../tg";
 import { sound } from "../sound";
 import type { CaseFull, CaseItem, Gift } from "../types";
+import { tf, ts } from "../money";
 
 const REEL_LEN = 60;
 const WIN_INDEX = 52;
@@ -182,7 +183,7 @@ export function CaseScreen({ id }: { id: string }) {
       setBalance(r.balance);
       haptic.success();
       sound.coins();
-      showToast(`Продано за ${fmt(r.sold_for)} ★`);
+      showToast(`Продано за ${tf(r.sold_for)} TON`);
       refreshInventory().catch(() => {});
     } catch (e) {
       showToast(errorText(e), "err");
@@ -196,7 +197,7 @@ export function CaseScreen({ id }: { id: string }) {
       const r = await api<{ balance: number; sold_for: number }>("sell", { ids: [result.inventory_id] });
       setBalance(r.balance);
       haptic.success();
-      showToast(`Продано за ${fmt(r.sold_for)} ★`);
+      showToast(`Продано за ${tf(r.sold_for)} TON`);
       refreshInventory().catch(() => {});
     } catch (e) {
       showToast(errorText(e), "err");
@@ -210,7 +211,7 @@ export function CaseScreen({ id }: { id: string }) {
       {result.inventory_id ? (
         <div class="row">
           <button class="btn secondary" onClick={sell}>
-            Продать · {short(result.gift.value)} ★
+            Продать · {ts(result.gift.value)} TON
           </button>
           <button class="btn" onClick={() => setResult(null)}>
             Забрать
@@ -242,7 +243,7 @@ export function CaseScreen({ id }: { id: string }) {
         <div class="glow" />
         <CaseCover name={data.name} category={data.category} cover={top} size={156} />
         <h1>{data.name}</h1>
-        <p class="muted">{data.description ?? `Главный приз — ${top.name} · ${short(top.value)} ★`}</p>
+        <p class="muted">{data.description ?? `Главный приз — ${top.name} · ${ts(top.value)} TON`}</p>
       </div>
 
       <div class={`reels ${reels.length > 1 ? "multi" : ""}`} ref={wrapRef}>
@@ -253,7 +254,7 @@ export function CaseScreen({ id }: { id: string }) {
               {reel.map((g) => (
                 <div class="reel-item" style={{ "--rc": RARITY[g.rarity].color }}>
                   <GiftArt gift={g} size={size.art} />
-                  <span class="num">{short(g.value)}</span>
+                  <span class="num">{ts(g.value)}</span>
                 </div>
               ))}
             </div>
@@ -292,13 +293,13 @@ export function CaseScreen({ id }: { id: string }) {
             </>
           ) : (
             <>
-              Открыть{n > 1 ? ` ${n}` : ""} за <Star size={18} /> <span class="num">{fmt(data.price * n)}</span>
+              Открыть{n > 1 ? ` ${n}` : ""} за <Star size={18} /> <span class="num">{tf(data.price * n)}</span>
             </>
           )}
         </button>
         {!canAfford && !spinning && data.pay_mode === "stars" && (
           <div class="dim" style={{ textAlign: "center", fontSize: 13 }}>
-            Не хватает {fmt(data.price * n - (p?.balance ?? 0))} ★
+            Не хватает {tf(data.price * n - (p?.balance ?? 0))} TON
           </div>
         )}
         <button
@@ -321,9 +322,9 @@ export function CaseScreen({ id }: { id: string }) {
         {data.items.map((g) => (
           <div class="gift-card glass" style={{ "--rc": RARITY[g.rarity].color }}>
             <GiftArt gift={g} size={64} />
-            <div class="g-name">{g.kind === "stars" ? "Звёзды" : g.name}</div>
+            <div class="g-name">{g.kind === "stars" ? "TON" : g.name}</div>
             <div class="g-val num">
-              <Star /> {short(g.value)}
+              <Star /> {ts(g.value)}
             </div>
             <div class="g-chance num">{chance(g.chance)}</div>
           </div>
@@ -347,13 +348,13 @@ export function CaseScreen({ id }: { id: string }) {
             <img class="win-sparkle" src="./fx/sparkle.webp" alt="" />
             <div class="win-art"><GiftArt gift={result.gift} size={180} /></div>
             <div class="rarity">{RARITY[result.gift.rarity].name}</div>
-            <h2>{result.gift.kind === "stars" ? `${fmt(result.gift.value)} звёзд` : result.gift.name}</h2>
+            <h2>{result.gift.kind === "stars" ? `${tf(result.gift.value)} TON` : result.gift.name}</h2>
             <div class="value num">
               {result.gift.kind === "stars" ? (
                 <span class="muted">Уже на балансе</span>
               ) : (
                 <>
-                  <Star size={20} /> {fmt(result.gift.value)}
+                  <Star size={20} /> {tf(result.gift.value)}
                   {result.price > 0 && (
                     <span class={`delta ${result.gift.value >= result.price ? "up" : "down"}`} style={{ fontSize: 14 }}>
                       {result.gift.value >= result.price ? "▲" : "▼"} ×{(result.gift.value / result.price).toFixed(2)}
@@ -393,19 +394,19 @@ function MultiResult({ results, onSell, onTake, onAgain }: { results: OpenResult
         {results.map((r) => (
           <div class="gift-card glass" style={{ "--rc": RARITY[r.gift.rarity].color }}>
             <GiftArt gift={r.gift} size={56} />
-            <div class="g-name">{r.gift.kind === "stars" ? "Звёзды" : r.gift.name}</div>
-            <div class="g-val num"><Star /> {short(r.gift.value)}</div>
+            <div class="g-name">{r.gift.kind === "stars" ? "TON" : r.gift.name}</div>
+            <div class="g-val num"><Star /> {ts(r.gift.value)}</div>
           </div>
         ))}
       </div>
       <div class="multi-total num">
         <span class="dim">Итого</span>
-        <b><Star size={18} /> {fmt(total)}</b>
+        <b><Star size={18} /> {tf(total)}</b>
         {cost > 0 && <span class={`delta ${total >= cost ? "up" : "down"}`}>{total >= cost ? "▲" : "▼"} ×{(total / cost).toFixed(2)}</span>}
       </div>
       {nftValue > 0 ? (
         <div class="row">
-          <button class="btn secondary" onClick={onSell}>Продать подарки · {short(nftValue)} ★</button>
+          <button class="btn secondary" onClick={onSell}>Продать подарки · {ts(nftValue)} TON</button>
           <button class="btn" onClick={onTake}>Забрать</button>
         </div>
       ) : (

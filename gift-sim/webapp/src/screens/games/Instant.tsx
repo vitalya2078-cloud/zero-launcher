@@ -6,6 +6,7 @@ import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
 import { sound } from "../../sound";
 import { Star } from "../../components/icons";
+import { tf, ts } from "../../money";
 
 type Risk = "low" | "mid" | "high";
 const RISKS: { id: Risk; label: string }[] = [
@@ -88,7 +89,7 @@ export function Coinflip() {
         ]}
       />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={flip}>{busy ? "Крутим" : `Подбросить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={flip}>{busy ? "Крутим" : `Подбросить за ${tf(bet)} TON`}</button>
     </>
   );
 }
@@ -255,7 +256,7 @@ export function Wheel() {
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       <Segmented value={risk} disabled={busy} onChange={(v) => { setRisk(v); setSegs(WHEEL_PREVIEW[v]); setRes(null); }} options={RISKS} />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={spin}>{busy ? "Крутим" : `Крутить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={spin}>{busy ? "Крутим" : `Крутить за ${tf(bet)} TON`}</button>
     </>
   );
 }
@@ -338,7 +339,7 @@ export function Plinko() {
       {res && <ResultLine payout={res.payout} bet={res.bet} multiplier={res.multiplier} />}
       <Segmented value={risk} disabled={busy} onChange={(v) => { setRisk(v); setRes(null); }} options={RISKS} />
       <BetInput value={bet} onChange={setBet} disabled={busy} />
-      <button class="btn" disabled={busy} onClick={drop}>{busy ? "Падает" : `Бросить за ${fmt(bet)} ★`}</button>
+      <button class="btn" disabled={busy} onClick={drop}>{busy ? "Падает" : `Бросить за ${tf(bet)} TON`}</button>
     </>
   );
 }

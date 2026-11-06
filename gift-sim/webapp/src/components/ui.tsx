@@ -4,6 +4,7 @@ import { profile, route, tab, toast, type Route } from "../state";
 import { fmt } from "../format";
 import { haptic } from "../tg";
 import { Ico, KeyIcon, Star } from "./icons";
+import { tf, ts } from "../money";
 
 export function Sheet({ onClose, children }: { onClose: () => void; children: ComponentChildren }) {
   useEffect(() => {
@@ -40,7 +41,7 @@ export function TopBar() {
       )}
       <div class="balance glass num">
         <Star size={18} />
-        {p ? fmt(p.balance) : "…"}
+        {p ? tf(p.balance) : "…"}
       </div>
     </div>
   );
@@ -85,7 +86,7 @@ export function Price({ value }: { value: number }) {
   return (
     <span class="num" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
       <Star />
-      {fmt(value)}
+      {tf(value)}
     </span>
   );
 }

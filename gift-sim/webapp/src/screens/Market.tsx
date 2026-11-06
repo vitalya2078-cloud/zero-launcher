@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { api, errorText } from "../api";
-import { GameHeader, Segmented } from "../components/game-ui";
+import { GameHeader, Segmented, TonInput } from "../components/game-ui";
 import { GiftArt } from "../components/GiftArt";
 import { Star } from "../components/icons";
 import { NftCard } from "../components/NftCard";
@@ -11,6 +11,7 @@ import { go, profile, refreshInventory, setBalance, showToast } from "../state";
 import { sound } from "../sound";
 import { haptic } from "../tg";
 import type { Gift } from "../types";
+import { tf, ts } from "../money";
 
 // Маркет между игроками: витрина лотов и «Мои лоты».
 
@@ -64,7 +65,7 @@ function Shop() {
             <button class={`chip ${gift === c.id ? "active" : ""}`} onClick={() => { haptic.tick(); setGift(gift === c.id ? null : c.id); }}>
               <GiftArt gift={c} size={22} />
               {c.name}
-              <span class="chip-n">от {short(c.floor)}</span>
+              <span class="chip-n">от {ts(c.floor)}</span>
             </button>
           ))}
         </div>
@@ -140,7 +141,7 @@ export function LotSheet({ lot, onClose, onDone }: { lot: Lot; onClose: () => vo
         <div class="lot-info glass">
           <div>
             <span class="dim">Цена лота</span>
-            <b class="num"><Star size={18} /> {fmt(lot.price)}</b>
+            <b class="num"><Star size={18} /> {tf(lot.price)}</b>
           </div>
           <div>
             <span class="dim">к Fragment</span>
@@ -155,7 +156,7 @@ export function LotSheet({ lot, onClose, onDone }: { lot: Lot; onClose: () => vo
           <button class="btn secondary" disabled={busy} onClick={cancel}>Снять с продажи</button>
         ) : (
           <button class="btn gold" disabled={busy || balance < lot.price} onClick={buy}>
-            {balance < lot.price ? `Не хватает ${fmt(lot.price - balance)} ★` : `Купить за ${fmt(lot.price)} ★`}
+            {balance < lot.price ? `Не хватает ${tf(lot.price - balance)} TON` : `Купить за ${tf(lot.price)} TON`}
           </button>
         )}
       </NftCard>
@@ -174,7 +175,7 @@ function Mine() {
       <div class="lot-info glass" style={{ marginBottom: 12 }}>
         <div><span class="dim">На продаже</span><b class="num">{fmt(d.active.length)}</b></div>
         <div><span class="dim">Продано</span><b class="num">{fmt(d.sold.length)}</b></div>
-        <div><span class="dim">Заработано</span><b class="num"><Star size={16} /> {short(d.earned)}</b></div>
+        <div><span class="dim">Заработано</span><b class="num"><Star size={16} /> {ts(d.earned)}</b></div>
       </div>
       {d.active.length === 0 ? (
         <div class="empty glass" style={{ padding: "28px 20px" }}>Выставь подарок: открой его в инвентаре и нажми «Маркет»</div>
@@ -193,7 +194,7 @@ function Mine() {
                 <b>{l.name}{l.num ? ` #${fmt(l.num)}` : ""}</b>
                 <span>продан {l.closed_at ? ago(l.closed_at) : ""}</span>
               </div>
-              <b class="num up">+{short(Math.floor(l.price * (1 - d.fee)))}</b>
+              <b class="num up">+{ts(Math.floor(l.price * (1 - d.fee)))}</b>
             </div>
           ))}
         </>
@@ -228,11 +229,10 @@ export function ListPanel({ id, value, onDone }: { id: number; value: number; on
 
   return (
     <div class="list-panel glass">
-      <div class="dim" style={{ fontSize: 13, marginBottom: 8 }}>Цена на маркете (от {short(min)} до {short(max)} ★)</div>
+      <div class="dim" style={{ fontSize: 13, marginBottom: 8 }}>Цена на маркете (от {ts(min)} до {ts(max)} TON)</div>
       <label class="bet-input">
         <Star size={18} />
-        <input class="num" type="number" inputMode="numeric" value={price}
-          onInput={(e) => setPrice(Math.max(0, Math.floor(Number((e.target as HTMLInputElement).value) || 0)))} />
+        <TonInput value={price} onChange={setPrice} />
       </label>
       <div class="bet-quick" style={{ marginTop: 8 }}>
         <button onClick={() => set(value * 0.9)}>−10%</button>
@@ -241,9 +241,9 @@ export function ListPanel({ id, value, onDone }: { id: number; value: number; on
         <button onClick={() => set(value * 2)}>×2</button>
       </div>
       <div class="dim num" style={{ fontSize: 13, margin: "10px 0" }}>
-        Получишь {fmt(Math.floor(price * 0.95))} ★ после продажи (комиссия 5%)
+        Получишь {tf(Math.floor(price * 0.95))} TON после продажи (комиссия 5%)
       </div>
-      <button class="btn" disabled={busy || price < min || price > max} onClick={list}>Выставить за {fmt(price)} ★</button>
+      <button class="btn" disabled={busy || price < min || price > max} onClick={list}>Выставить за {tf(price)} TON</button>
     </div>
   );
 }

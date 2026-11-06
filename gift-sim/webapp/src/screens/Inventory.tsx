@@ -12,6 +12,7 @@ import { fmt, plural, RARITY, short } from "../format";
 import { go, inventory, refreshInventory, setBalance, showToast, tab } from "../state";
 import { haptic } from "../tg";
 import type { InventoryItem } from "../types";
+import { tf, ts } from "../money";
 
 type History = { points: { t: string; stars: number }[]; change_24h: number | null };
 
@@ -84,7 +85,7 @@ export function Inventory() {
       const r = await api<{ balance: number; sold_for: number; sold: number }>("sell", { ids });
       setBalance(r.balance);
       haptic.success();
-      showToast(`Продано ${r.sold} ${plural(r.sold, "подарок", "подарка", "подарков")} за ${fmt(r.sold_for)} ★`);
+      showToast(`Продано ${r.sold} ${plural(r.sold, "подарок", "подарка", "подарков")} за ${tf(r.sold_for)} TON`);
       setSelected(new Set());
       setSelecting(false);
       setOpen(null);
@@ -113,7 +114,7 @@ export function Inventory() {
             Коллекция · {inv.items.length} {plural(inv.items.length, "подарок", "подарка", "подарков")}
           </div>
           <div class="total num">
-            <Star size={22} /> {fmt(inv.total_value)}
+            <Star size={22} /> {tf(inv.total_value)}
           </div>
         </div>
         {inv.items.length > 0 && (
@@ -169,7 +170,7 @@ export function Inventory() {
             Все
           </button>
           <button class="btn" style={{ height: 44 }} disabled={busy} onClick={() => sell([...selected])}>
-            Продать {selected.size} за {short(selValue)} ★
+            Продать {selected.size} за {ts(selValue)} TON
           </button>
         </div>
       )}
@@ -211,10 +212,10 @@ function GiftSheet({ item, busy, onSell, onClose }: { item: InventoryItem; busy:
             )}
           </div>
           <PriceChart points={hist?.points ?? []} />
-          <div class="dim num" style={{ fontSize: 12, marginTop: 6 }}>При получении: {fmt(item.value_at_drop)} ★</div>
+          <div class="dim num" style={{ fontSize: 12, marginTop: 6 }}>При получении: {tf(item.value_at_drop)} TON</div>
         </div>
         <button class="btn secondary" disabled={busy} onClick={onSell}>
-          Продать за {fmt(item.value)} ★
+          Продать за {tf(item.value)} TON
         </button>
       </NftCard>
     </Sheet>

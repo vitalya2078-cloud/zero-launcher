@@ -8,6 +8,7 @@ import { fmt, plural, RARITY, short, timeLeft } from "../format";
 import { go, profile, showToast } from "../state";
 import { haptic } from "../tg";
 import type { CaseCard, Drop, Profile } from "../types";
+import { tf, ts } from "../money";
 
 const CATEGORIES: { id: CaseCard["category"] | "all"; label: string; icon?: string }[] = [
   { id: "all", label: "Все" },
@@ -77,7 +78,7 @@ export function Home() {
             >
               <GiftArt gift={d} size={44} />
               <div class="num" style={{ fontSize: 11, fontWeight: 700 }}>
-                {short(d.value)}
+                {ts(d.value)}
               </div>
               <div class="who">{d.user}</div>
             </div>
@@ -128,7 +129,7 @@ export function Home() {
       ))}
 
       <p class="disclaimer">
-        Игра бесплатная. Подарки и звёзды внутриигровые — вывести их нельзя. FORTUM DROPS не является проектом Telegram.
+        Игра бесплатная. Подарки и TON внутриигровые — вывести их нельзя. FORTUM DROPS не является проектом Telegram.
       </p>
     </>
   );
@@ -152,7 +153,7 @@ function CaseTile({ c }: { c: CaseCard }) {
       <div class="art-wrap"><CaseCover name={c.name} category={c.category} cover={c.cover} size={104} /></div>
       <div class="name">{c.name}</div>
       <div class="sub num">
-        до {short(c.max_value)} ★ · {c.items_count} призов
+        до {ts(c.max_value)} TON · {c.items_count} призов
       </div>
       <div class="price num">
         {c.pay_mode === "free" ? (
@@ -164,7 +165,7 @@ function CaseTile({ c }: { c: CaseCard }) {
         ) : (
           <>
             {discounted && <s>{fmt(c.base_price)}</s>}
-            <Star /> {fmt(c.price)}
+            <Star /> {tf(c.price)}
           </>
         )}
       </div>
@@ -186,7 +187,7 @@ function DailyBonus() {
       const r = await api<Profile & { bonus: number }>("claim_daily");
       profile.value = r;
       haptic.success();
-      showToast(`+${fmt(r.bonus)} ★`);
+      showToast(`+${tf(r.bonus)} TON`);
     } catch (e) {
       haptic.error();
       showToast(errorText(e), "err");
@@ -201,7 +202,7 @@ function DailyBonus() {
       const r = await api<Profile & { amount: number }>("claim_rescue");
       profile.value = r;
       haptic.success();
-      showToast(`+${fmt(r.amount)} ★`);
+      showToast(`+${tf(r.amount)} TON`);
     } catch (e) {
       showToast(errorText(e), "err");
     } finally {
@@ -215,7 +216,7 @@ function DailyBonus() {
         <Ico name="daily" size={56} class="bonus-icon" />
         <div class="bonus-text">
           <b>Бонус дня</b>
-          <span class="num">{wait ? `Следующий через ${wait}` : `+${fmt(p.daily_next_amount)} ★ уже ждут`}</span>
+          <span class="num">{wait ? `Следующий через ${wait}` : `+${tf(p.daily_next_amount)} TON уже ждут`}</span>
           <div class="streak">
             {Array.from({ length: 7 }, (_, i) => (
               <i class={i < (wait ? streak : streak) ? "on" : ""} />
@@ -230,8 +231,8 @@ function DailyBonus() {
         <div class="bonus glass" style={{ marginTop: 10 }}>
           <Ico name="rescue" size={56} class="bonus-icon" />
           <div class="bonus-text">
-            <b>Звёзды кончились?</b>
-            <span>Держи 700 ★ на отыгрыш</span>
+            <b>Баланс на нуле?</b>
+            <span>Держи {tf(700)} TON на отыгрыш</span>
           </div>
           <button class="btn small" disabled={busy} onClick={rescue}>
             Получить

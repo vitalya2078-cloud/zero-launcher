@@ -5,6 +5,7 @@ import { fmt } from "../../format";
 import { refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
 import { sound } from "../../sound";
+import { tf, ts } from "../../money";
 
 type Round = {
   round_id: number;
@@ -44,7 +45,7 @@ export function Mines() {
       } else if (r.status === "cashed") {
         haptic.success();
         sound.coins();
-        showToast(`+${fmt(r.payout)} ★`);
+        showToast(`+${tf(r.payout)} TON`);
         refreshProfile().catch(() => {});
       } else {
         haptic.tap();
@@ -90,7 +91,7 @@ export function Mines() {
             <div><span class="dim">Открыто</span><b>{opened}/{25 - round!.mines}</b></div>
           </div>
           <button class="btn gold" disabled={busy || opened === 0} onClick={() => call("mines_cashout", { round_id: round!.round_id })}>
-            {opened === 0 ? "Открой клетку" : `Забрать ${fmt(cashoutValue)} ★`}
+            {opened === 0 ? "Открой клетку" : `Забрать ${tf(cashoutValue)} TON`}
           </button>
         </>
       ) : (
@@ -98,7 +99,7 @@ export function Mines() {
           {round && (
             <div class={`result-line ${round.status === "cashed" ? "win" : "lose"}`}>
               <b class="num">{round.status === "cashed" ? `×${round.multiplier}` : "Мина!"}</b>
-              <span class="num">{round.status === "cashed" ? `+${fmt(round.payout)} ★` : `−${fmt(round.bet)} ★`}</span>
+              <span class="num">{round.status === "cashed" ? `+${tf(round.payout)} TON` : `−${tf(round.bet)} TON`}</span>
             </div>
           )}
           <div class="glass" style={{ padding: "12px 14px", marginBottom: 12 }}>
@@ -108,7 +109,7 @@ export function Mines() {
           </div>
           <BetInput value={bet} onChange={(v) => { setBet(v); localStorage.setItem("bet", String(v)); }} disabled={busy} />
           <button class="btn" disabled={busy} onClick={() => call("mines_start", { bet, mines })}>
-            Начать за {fmt(bet)} ★
+            Начать за {tf(bet)} TON
           </button>
         </>
       )}

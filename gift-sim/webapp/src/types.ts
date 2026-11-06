@@ -63,6 +63,7 @@ export type Profile = {
   invited: number;
   invited_active: number;
   is_admin: boolean;
+  stars_per_ton?: number; // курс для показа сумм в TON
   is_new?: boolean;
 };
 

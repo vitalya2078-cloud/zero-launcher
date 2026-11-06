@@ -3,6 +3,7 @@ import { fmt, short } from "../format";
 import type { Gift } from "../types";
 import { GiftArt } from "./GiftArt";
 import { Star } from "./icons";
+import { tf, ts } from "../money";
 
 // подходит и подарок из каталога (id — строка), и запись инвентаря (id — число, коллекция в gift_id)
 type TileGift = Omit<Gift, "id"> & { id: string | number; gift_id?: string };
@@ -21,7 +22,7 @@ export function NftTile({ g, onClick, selected, badge, children }: {
       <GiftArt gift={g} size={160} />
       {g.num ? <span class="ribbon num">#{fmt(g.num)}</span> : null}
       {badge && <span class="tile-badge">{badge}</span>}
-      <span class="tile-price num"><Star /> {short(g.value)}</span>
+      <span class="tile-price num"><Star /> {ts(g.value)}</span>
       {children}
     </button>
   );

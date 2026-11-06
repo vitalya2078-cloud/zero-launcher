@@ -10,6 +10,7 @@ import { NftCard } from "../components/NftCard";
 import { CollectionChips, NftTile } from "../components/NftTile";
 import { Sheet } from "../components/ui";
 import type { Gift, Leaderboard, LbKind, PlayerProfile } from "../types";
+import { tf, ts } from "../money";
 
 // Аватар игрока: фото из Telegram или первая буква имени.
 function Avatar({ url, name, size = 44 }: { url: string | null; name: string; size?: number }) {
@@ -42,7 +43,7 @@ function Score({ kind, score, level }: { kind: LbKind; score: number; level: num
   }
   return (
     <div class="lb-score num">
-      <b><Star /> {short(score)}</b>
+      <b><Star /> {ts(score)}</b>
     </div>
   );
 }
@@ -96,7 +97,7 @@ export function Top() {
           <span>Твоё место</span>
           <b>#{fmt(data.me.rank)}</b>
           <span class="spacer" />
-          {kind === "level" ? <b>{short(data.me.score)} XP</b> : <b><Star /> {short(data.me.score)}</b>}
+          {kind === "level" ? <b>{short(data.me.score)} XP</b> : <b><Star /> {ts(data.me.score)}</b>}
         </div>
       )}
     </>
@@ -142,7 +143,7 @@ export function Player({ id }: { id: string }) {
 
       <div class="stats3" style={{ marginTop: 10 }}>
         <div class="stat glass">
-          <b class="num"><Star size={18} />{short(p.total_won)}</b>
+          <b class="num"><Star size={18} />{ts(p.total_won)}</b>
           <span>выиграно</span>
         </div>
         <div class="stat glass">
@@ -150,7 +151,7 @@ export function Player({ id }: { id: string }) {
           <span>{plural(p.cases_opened, "кейс", "кейса", "кейсов")}</span>
         </div>
         <div class="stat glass">
-          <b class="num"><Ico name="tab-inventory" size={20} />{short(p.collection_value)}</b>
+          <b class="num"><Ico name="tab-inventory" size={20} />{ts(p.collection_value)}</b>
           <span>коллекция</span>
         </div>
       </div>
@@ -162,7 +163,7 @@ export function Player({ id }: { id: string }) {
             <span>Лучший дроп</span>
             <b>{p.best.name}</b>
           </div>
-          <b class="num"><Star /> {short(p.best.value)}</b>
+          <b class="num"><Star /> {ts(p.best.value)}</b>
         </div>
       )}
 
@@ -199,10 +200,10 @@ export function Player({ id }: { id: string }) {
             onClick={w.kind === "nft" ? () => { haptic.tap(); setOpen(w); } : undefined}>
             <GiftArt gift={w} size={40} />
             <div class="t-body">
-              <b>{w.name}</b>
+              <b>{w.kind === "stars" ? `${tf(w.value)} TON` : w.name}</b>
               <span>{SOURCE[w.source] ?? "Игра"} · {ago(w.at)}</span>
             </div>
-            <b class="num"><Star /> {short(w.value)}</b>
+            <b class="num"><Star /> {ts(w.value)}</b>
           </div>
         ))
       )}

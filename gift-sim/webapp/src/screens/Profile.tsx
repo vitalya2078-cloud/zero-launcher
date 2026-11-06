@@ -7,6 +7,7 @@ import { go, profile, showToast } from "../state";
 import { haptic, referralLink, shareLink, tg } from "../tg";
 import { setSound, setVibro, sound, soundOn, vibroOn } from "../sound";
 import type { Profile as P, Task } from "../types";
+import { tf, ts } from "../money";
 
 export function Profile() {
   const p = profile.value;
@@ -30,7 +31,7 @@ export function Profile() {
       const r = await api<P & { reward_stars: number; reward_keys: number }>("claim_task", { id: t.id });
       profile.value = r;
       haptic.success();
-      showToast(`Награда: +${fmt(r.reward_stars)} ★${r.reward_keys ? ` и ${r.reward_keys} 🔑` : ""}`);
+      showToast(`Награда: +${tf(r.reward_stars)} TON${r.reward_keys ? ` и ${r.reward_keys} 🔑` : ""}`);
       setTasks(await api<Task[]>("tasks"));
     } catch (e) {
       haptic.error();
@@ -60,8 +61,8 @@ export function Profile() {
 
       <div class="stats3">
         <div class="stat glass">
-          <b class="num"><Star size={20} />{fmt(p.balance)}</b>
-          <span>звёзд</span>
+          <b class="num"><Star size={20} />{tf(p.balance)}</b>
+          <span>TON</span>
         </div>
         <div class="stat glass">
           <b class="num"><KeyIcon size={20} />{p.referral_keys}</b>
@@ -87,7 +88,7 @@ export function Profile() {
       </div>
       <div class="ref-box glass">
         <div class="muted" style={{ fontSize: 14 }}>
-          Другу — <b>1 000 ★</b> на старт. Тебе — <b>1 500 ★</b> и <KeyIcon size={14} /> ключ, когда он возьмёт 2 уровень, плюс 3% с его ставок.
+          Другу — <b>{tf(1000)} TON</b> на старт. Тебе — <b>{tf(1500)} TON</b> и <KeyIcon size={14} /> ключ, когда он возьмёт 2 уровень, плюс 3% с его ставок.
         </div>
         <div class="ref-link">{link}</div>
         <div class="row">
@@ -100,7 +101,7 @@ export function Profile() {
           >
             Копировать
           </button>
-          <button class="btn small" style={{ height: 44 }} onClick={() => shareLink(link, "Залетай в FORTUM DROPS: кейсы с NFT-подарками, краш и битвы. По моей ссылке +1 000 ★")}>
+          <button class="btn small" style={{ height: 44 }} onClick={() => shareLink(link, "Залетай в FORTUM DROPS: кейсы с NFT-подарками, краш и битвы. По моей ссылке бонус на старт")}>
             Поделиться
           </button>
         </div>
@@ -147,7 +148,7 @@ function TaskRow({ t, busy, onClaim }: { t: Task; busy: boolean; onClaim: () => 
       <div class="t-body">
         <div class="t-title">{t.title}</div>
         <div class="t-sub num">
-          +{fmt(t.reward_stars)} <Star />
+          +{tf(t.reward_stars)} <Star />
           {t.reward_keys ? <> · +{t.reward_keys} <KeyIcon size={14} /></> : ""}
           {t.kind === "stat" && !target && ` · ${Math.min(t.progress ?? 0, t.target)}/${t.target}`}
         </div>

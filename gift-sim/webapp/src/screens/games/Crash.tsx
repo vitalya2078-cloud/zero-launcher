@@ -7,6 +7,7 @@ import { haptic } from "../../tg";
 import { sound } from "../../sound";
 
 import { CrashScene } from "./crashScene";
+import { tf, ts } from "../../money";
 
 type Bet = { user: string; photo_url: string | null; bet: number; status: "active" | "cashed" | "lost"; cashout_at: number | null; payout: number; me: boolean };
 type State = {
@@ -173,7 +174,7 @@ export function Crash() {
       apply(st, sent);
       haptic.success();
       sound.coins();
-      showToast(`Забрали ×${st.cashout_at} — +${fmt(st.payout)} ★`);
+      showToast(`Забрали ×${st.cashout_at} — +${tf(st.payout)} TON`);
       refreshProfile().catch(() => {});
     } catch (e) {
       haptic.error();
@@ -210,12 +211,12 @@ export function Crash() {
 
       {s?.phase === "running" && me?.status === "active" ? (
         <button class="btn gold" disabled={busy} onClick={cashout}>
-          Забрать {fmt(Math.floor(me.bet * mult))} ★
+          Забрать {tf(Math.floor(me.bet * mult))} TON
         </button>
       ) : me ? (
         <div class={`result-line ${me.status === "cashed" ? "win" : me.status === "lost" ? "lose" : ""}`}>
           <b class="num">{me.status === "cashed" ? `×${me.cashout_at}` : me.status === "lost" ? "Взрыв" : "Ставка принята"}</b>
-          <span class="num">{me.status === "cashed" ? `+${fmt(me.payout)} ★` : me.status === "lost" ? `−${fmt(me.bet)} ★` : `${fmt(me.bet)} ★`}</span>
+          <span class="num">{me.status === "cashed" ? `+${tf(me.payout)} TON` : me.status === "lost" ? `−${tf(me.bet)} TON` : `${tf(me.bet)} TON`}</span>
         </div>
       ) : (
         <>
@@ -227,7 +228,7 @@ export function Crash() {
             <span class="dim">×</span>
           </div>
           <button class="btn" disabled={busy || s?.phase !== "betting"} onClick={placeBet}>
-            {s?.phase === "betting" ? `Поставить ${fmt(bet)} ★` : "Ждём следующий раунд"}
+            {s?.phase === "betting" ? `Поставить ${tf(bet)} TON` : "Ждём следующий раунд"}
           </button>
         </>
       )}
@@ -238,9 +239,9 @@ export function Crash() {
           {s.bets.map((b) => (
             <div class={`bet-line glass ${b.me ? "me" : ""}`}>
               <span class="who">{b.user}</span>
-              <span class="num dim">{short(b.bet)} ★</span>
+              <span class="num dim">{ts(b.bet)} TON</span>
               <span class={`num ${b.status === "cashed" ? "up" : b.status === "lost" ? "down" : ""}`}>
-                {b.status === "cashed" ? `×${b.cashout_at} · +${short(b.payout)}` : b.status === "lost" ? "—" : "в игре"}
+                {b.status === "cashed" ? `×${b.cashout_at} · +${ts(b.payout)}` : b.status === "lost" ? "—" : "в игре"}
               </span>
             </div>
           ))}

@@ -8,12 +8,37 @@ import { GiftArt } from "./GiftArt";
 import { NftCard } from "./NftCard";
 import { Star } from "./icons";
 import { Sheet } from "./ui";
+import { tf, toStars, ts } from "../money";
 
 // Фон игрового поля: картинка из public/bg под затемняющим градиентом.
 // Задаётся inline-стилем, чтобы относительный путь считался от страницы, а не от CSS-файла.
 export const stageBg = (name: string) => ({
   backgroundImage: `linear-gradient(180deg, rgba(7, 11, 24, 0.3), rgba(7, 11, 24, 0.6)), url(./bg/${name}.webp)`,
 });
+
+// Поле суммы в TON: печатаем в TON (с запятой или точкой), наружу отдаём звёзды.
+export function TonInput({ value, onChange, disabled }: { value: number; onChange: (stars: number) => void; disabled?: boolean }) {
+  const [text, setText] = useState(() => tf(value).replace(/\s/g, ""));
+  // внешнее изменение (½, ×2, быстрые кнопки) — обновляем текст, если он означает другую сумму
+  useEffect(() => {
+    const cur = Number(text.replace(",", ".")) || 0;
+    if (toStars(cur) !== value) setText(tf(value).replace(/\s/g, ""));
+  }, [value]);
+  return (
+    <input
+      class="num"
+      type="text"
+      inputMode="decimal"
+      value={text}
+      disabled={disabled}
+      onInput={(e) => {
+        const t = (e.target as HTMLInputElement).value.replace(/[^\d.,]/g, "");
+        setText(t);
+        onChange(Math.max(0, toStars(Number(t.replace(",", ".")) || 0)));
+      }}
+    />
+  );
+}
 
 // Поле ставки с быстрыми кнопками.
 export function BetInput({ value, onChange, disabled }: { value: number; onChange: (v: number) => void; disabled?: boolean }) {
@@ -28,20 +53,13 @@ export function BetInput({ value, onChange, disabled }: { value: number; onChang
         <button class="bet-btn" disabled={disabled} onClick={() => set(value / 2)}>½</button>
         <label class="bet-input">
           <Star size={18} />
-          <input
-            class="num"
-            type="number"
-            inputMode="numeric"
-            value={value}
-            disabled={disabled}
-            onInput={(e) => onChange(Math.max(0, Math.floor(Number((e.target as HTMLInputElement).value) || 0)))}
-          />
+          <TonInput value={value} onChange={onChange} disabled={disabled} />
         </label>
         <button class="bet-btn" disabled={disabled} onClick={() => set(value * 2)}>×2</button>
       </div>
       <div class="bet-quick">
-        {[100, 500, 1000, 5000].map((v) => (
-          <button disabled={disabled} onClick={() => set(v)}>{short(v)}</button>
+        {[1, 5, 10, 50].map((t) => (
+          <button disabled={disabled} onClick={() => set(toStars(t))}>{t}</button>
         ))}
         <button disabled={disabled} onClick={() => set(balance)}>Макс</button>
       </div>
@@ -89,7 +107,7 @@ export function ResultLine({ payout, bet, multiplier }: { payout: number; bet: n
     <div class={`result-line ${win ? "win" : payout > 0 ? "" : "lose"}`}>
       {win && <img class="result-coins" src="./fx/coins.webp" alt="" />}
       <b class="num">×{Number(multiplier).toFixed(2)}</b>
-      <span class="num">{payout > 0 ? `+${fmt(payout)} ★` : `−${fmt(bet)} ★`}</span>
+      <span class="num">{payout > 0 ? `+${tf(payout)} TON` : `−${tf(bet)} TON`}</span>
     </div>
   );
 }
@@ -134,7 +152,7 @@ export function ItemPicker({ title, max, min = 1, exclude = [], onDone, onClose,
                 {on && <span class="check">✓</span>}
                 <GiftArt gift={g} size={56} />
                 <div class="g-name">{g.name}</div>
-                <div class="g-val num"><Star /> {short(g.value)}</div>
+                <div class="g-val num"><Star /> {ts(g.value)}</div>
               </button>
             );
           })}
@@ -143,7 +161,7 @@ export function ItemPicker({ title, max, min = 1, exclude = [], onDone, onClose,
       <div style={{ marginTop: 14 }}>
         {footer?.(chosen)}
         <button class="btn" disabled={sel.length < min} onClick={() => onDone(chosen)}>
-          Выбрать {sel.length > 0 ? `· ${short(chosen.reduce((s, i) => s + i.value, 0))} ★` : ""}
+          Выбрать {sel.length > 0 ? `· ${ts(chosen.reduce((s, i) => s + i.value, 0))} TON` : ""}
         </button>
       </div>
     </Sheet>
@@ -170,7 +188,7 @@ export function PrizeSheet({ gift, title, note, onClose }: { gift: Gift; title?:
         <div class="win-art"><GiftArt gift={gift} size={180} /></div>
         <div class="rarity">{RARITY[gift.rarity].name}</div>
         <h2>{title ?? gift.name}</h2>
-        <div class="value num"><Star size={20} /> {fmt(gift.value)}</div>
+        <div class="value num"><Star size={20} /> {tf(gift.value)}</div>
         {note && <div class="dim" style={{ marginTop: -10, marginBottom: 14, fontSize: 13 }}>{note}</div>}
         <button class="btn" onClick={onClose}>Забрать</button>
       </div>

@@ -8,6 +8,7 @@ import { fmt, short } from "../../format";
 import { profile, refreshInventory, refreshProfile, setBalance, showToast } from "../../state";
 import { haptic } from "../../tg";
 import type { CaseCard, Gift } from "../../types";
+import { tf, ts } from "../../money";
 
 const COLORS = ["#3d9bff", "#ff5a6e", "#3ddc97", "#ffb547", "#a86bff", "#ff6bd6", "#5ee7ff", "#c6ff5e"];
 
@@ -40,7 +41,7 @@ export function Jackpot() {
         const w = st.last_winners[0];
         if (w) {
           haptic.heavy();
-          showToast(`${w.user} забирает банк ${short(w.total_value)} ★ (шанс ${w.chance}%)`);
+          showToast(`${w.user} забирает банк ${ts(w.total_value)} TON (шанс ${w.chance}%)`);
           refreshInventory().catch(() => {});
         }
       }
@@ -96,7 +97,7 @@ export function Jackpot() {
         </svg>
         <div class="upgrade-center">
           <div class="dim" style={{ fontSize: 12 }}>Банк</div>
-          <div class="num" style={{ fontSize: 26, fontWeight: 800 }}>{short(s?.total_value ?? 0)} ★</div>
+          <div class="num" style={{ fontSize: 26, fontWeight: 800 }}>{ts(s?.total_value ?? 0)} TON</div>
           <div class="dim num" style={{ fontSize: 12 }}>
             {left != null ? `розыгрыш через ${left.toFixed(0)}с` : (s?.bets.length ?? 0) > 0 ? "ждём соперника" : "банк пуст"}
           </div>
@@ -126,7 +127,7 @@ export function Jackpot() {
             <div class="bet-line glass">
               <span class="who"><Ico name="games/jackpot" size={20} /> {w.user}</span>
               <span class="dim num">шанс {w.chance}%</span>
-              <span class="num up">{short(w.total_value)} ★</span>
+              <span class="num up">{ts(w.total_value)} TON</span>
             </div>
           ))}
         </>
@@ -186,7 +187,7 @@ export function Battles() {
     setBusy(true);
     try {
       const b = await api<Battle & { cancelled?: boolean; balance?: number }>(method, params);
-      if (b.cancelled) { setView(null); showToast("Битва отменена, звёзды вернулись"); }
+      if (b.cancelled) { setView(null); showToast("Битва отменена, ставка вернулась"); }
       else setView(b);
       if (b.status === "finished") haptic.heavy(); else haptic.medium();
       refreshProfile().catch(() => {});
@@ -238,7 +239,7 @@ function BattleRow({ b, onOpen }: { b: Battle; onOpen: () => void }) {
         <b class="num">{b.players.length}/{b.max_players} игроков</b>
         <div class="dim" style={{ fontSize: 12 }}>{b.cases.length} кейс(ов) · {b.status === "finished" ? `победил ${winner?.user ?? "—"}` : "ожидание"}</div>
       </div>
-      <span class="num" style={{ fontWeight: 800 }}><Star /> {short(b.status === "finished" ? b.total_value : b.cost)}</span>
+      <span class="num" style={{ fontWeight: 800 }}><Star /> {ts(b.status === "finished" ? b.total_value : b.cost)}</span>
     </button>
   );
 }
@@ -250,7 +251,7 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
     <>
       <div class="section-title" style={{ marginTop: 0 }}>
         <h2>Битва #{b.id}</h2>
-        <span class="num">вход {fmt(b.cost)} ★</span>
+        <span class="num">вход {tf(b.cost)} TON</span>
       </div>
       <div class="gifts-row" style={{ marginBottom: 12 }}>{b.cases.map((c) => c.cover && <SmallGift g={c.cover} />)}</div>
       <div class="battle-cols stage-bg" style={{ gridTemplateColumns: `repeat(${b.max_players}, 1fr)`, ...stageBg("battles") }}>
@@ -262,9 +263,9 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
             <div class={`battle-col glass ${win ? "winner" : ""} ${p?.me ? "me" : ""}`}>
               <div class="who">{p ? (p.bot ? "Бот" : p.user) : "ожидание…"}</div>
               {p?.drops?.map((g) => (
-                <div class="battle-drop"><GiftArt gift={g} size={38} /><span class="num">{short(g.value)}</span></div>
+                <div class="battle-drop"><GiftArt gift={g} size={38} /><span class="num">{ts(g.value)}</span></div>
               ))}
-              {b.status === "finished" && p && <div class="num total">{short(p.total)} ★</div>}
+              {b.status === "finished" && p && <div class="num total">{ts(p.total)} TON</div>}
               {win && <Ico name="games/jackpot" size={34} class="crown" />}
             </div>
           );
@@ -272,7 +273,7 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
       </div>
       {b.status === "waiting" && (
         <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-          {!joined && <button class="btn" disabled={busy || !canAfford} onClick={onJoin}>Войти за {fmt(b.cost)} ★</button>}
+          {!joined && <button class="btn" disabled={busy || !canAfford} onClick={onJoin}>Войти за {tf(b.cost)} TON</button>}
           {b.is_creator && <button class="btn secondary" disabled={busy} onClick={onBots}>Добавить ботов</button>}
           {b.is_creator && b.players.length === 1 && <button class="btn secondary" disabled={busy} onClick={onCancel}>Отменить</button>}
         </div>
@@ -280,7 +281,7 @@ function BattleView({ b, busy, onJoin, onBots, onCancel }: { b: Battle; busy: bo
       {b.status === "finished" && (
         <div class={`result-line ${b.players.find((p) => p.slot === b.winner_slot)?.me ? "win" : joined ? "lose" : ""}`} style={{ marginTop: 14 }}>
           <b>{b.players.find((p) => p.slot === b.winner_slot)?.me ? "Победа!" : "Победитель: " + (b.players.find((p) => p.slot === b.winner_slot)?.user ?? "")}</b>
-          <span class="num">банк {short(b.total_value)} ★</span>
+          <span class="num">банк {ts(b.total_value)} TON</span>
         </div>
       )}
     </>
@@ -310,7 +311,7 @@ function CreateBattle({ busy, onClose, onCreate }: { busy: boolean; onClose: () 
               {n > 0 && <span class="check">{n}</span>}
               {c.cover && <GiftArt gift={c.cover} size={48} />}
               <div class="g-name">{c.name}</div>
-              <div class="g-val num"><Star /> {short(c.base_price)}</div>
+              <div class="g-val num"><Star /> {ts(c.base_price)}</div>
             </button>
           );
         })}
@@ -318,7 +319,7 @@ function CreateBattle({ busy, onClose, onCreate }: { busy: boolean; onClose: () 
       <div class="row" style={{ marginTop: 12 }}>
         <button class="btn secondary" style={{ flex: "none", width: 110 }} disabled={!chosen.length} onClick={() => setChosen([])}>Сбросить</button>
         <button class="btn" disabled={busy || !chosen.length} onClick={() => onCreate(chosen.map((c) => c.id), players)}>
-          Создать · {fmt(cost)} ★
+          Создать · {tf(cost)} TON
         </button>
       </div>
     </Sheet>

@@ -1,4 +1,6 @@
 import { render } from "preact";
+import { effect } from "@preact/signals";
+import { starsPerTon } from "./money";
 import { useEffect, useState } from "preact/hooks";
 import "./styles.css";
 import { api, errorText } from "./api";
@@ -20,8 +22,14 @@ const GAME_SCREENS = { crash: Crash, upgrade: Upgrade, contract: Contract, mines
 import { back, profile, route, showToast } from "./state";
 import { initTelegram, setBack, tg } from "./tg";
 import type { Profile as P } from "./types";
+import { tf, ts } from "./money";
 
 initTelegram();
+// курс для показа сумм в TON приходит с профилем
+effect(() => {
+  const r = Number(profile.value?.stars_per_ton);
+  if (r > 0) starsPerTon.value = r;
+});
 // кнопка «Открыть маркет» из уведомления бота ведёт на …/#market
 if (location.hash === "#market") route.value = { name: "market" };
 
@@ -36,7 +44,7 @@ function App() {
     api<P>("login")
       .then((p) => {
         profile.value = p;
-        if (p.is_new) showToast("+3 000 ★ на старт. Удачи!");
+        if (p.is_new) showToast(`+${tf(3000)} TON на старт. Удачи!`);
       })
       .catch((e) => setError(errorText(e)));
   }, []);

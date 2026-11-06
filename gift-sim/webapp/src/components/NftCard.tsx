@@ -5,6 +5,7 @@ import { fmt } from "../format";
 import type { Gift } from "../types";
 import { Star } from "./icons";
 import { GiftLottie } from "./Lottie";
+import { tf, ts } from "../money";
 
 // Окно NFT-подарка как в Telegram: фон и узор конкретного номера, анимация модели,
 // «Название #номер», модель под ним и таблица атрибутов с редкостью.
@@ -137,7 +138,7 @@ export function NftCard({ gift, actions, children }: { gift: NftGift; actions?: 
             <Row k="Атрибуты"><span class="dim">не удалось загрузить</span></Row>
           )
         )}
-        <Row k="Ценность"><span class="num">~{fmt(gift.value)}</span> <Star /></Row>
+        <Row k="Ценность"><span class="num">~{tf(gift.value)}</span> <Star /></Row>
       </div>
       {children}
     </div>
